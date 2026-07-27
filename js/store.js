@@ -1,0 +1,45 @@
+/* =========================================
+   store.js — localStorage 统一读写封装
+   ========================================= */
+
+const KEYS = {
+  articles: 'fc_articles',
+  likes:    'fc_likes',
+  likedBy:  'fc_liked_by',
+  comments: 'fc_comments',
+  messages: 'fc_messages',
+};
+
+function read(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function write(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* quota exceeded — silently fail */
+  }
+}
+
+export const store = {
+  getArticles()    { return read(KEYS.articles, []); },
+  setArticles(v)   { write(KEYS.articles, v); },
+
+  getLikes()       { return read(KEYS.likes, {}); },
+  setLikes(v)      { write(KEYS.likes, v); },
+
+  getLikedBy()     { return read(KEYS.likedBy, {}); },
+  setLikedBy(v)    { write(KEYS.likedBy, v); },
+
+  getComments()    { return read(KEYS.comments, {}); },
+  setComments(v)   { write(KEYS.comments, v); },
+
+  getMessages()    { return read(KEYS.messages, []); },
+  setMessages(v)   { write(KEYS.messages, v); },
+};
