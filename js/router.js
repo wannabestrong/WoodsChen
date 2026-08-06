@@ -5,11 +5,10 @@
 import { renderHome, bindHomeEvents } from './pages/home.js';
 import { renderArticle, bindArticleEvents } from './pages/article.js';
 import { renderPhotos, bindPhotosEvents } from './pages/photos.js';
-import { renderGuestbook, bindGuestbookEvents } from './pages/guestbook.js';
 import { renderNav } from './components/nav.js';
 
 /* ---- 状态 ---- */
-export const TOP_PAGES = ['home', 'photos', 'guestbook']; // 首页 → 照片墙 → 留言板 → 首页
+export const TOP_PAGES = ['home', 'photos']; // 首页 → 照片墙 → 首页
 
 export let state = {
   page: 'home',      // 当前顶层页面
@@ -47,10 +46,6 @@ export function render() {
     case 'photos':
       container.innerHTML = renderPhotos();
       bindPhotosEvents();
-      break;
-    case 'guestbook':
-      container.innerHTML = renderGuestbook();
-      bindGuestbookEvents();
       break;
     default:
       container.innerHTML = renderHome();

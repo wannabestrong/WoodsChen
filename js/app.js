@@ -3,11 +3,18 @@
    ========================================= */
 
 import { state, render, arrowNext, arrowPrev } from './router.js';
+import { initSupabase } from './supabase.js';
 
 /* ---- 初始化 ---- */
 document.addEventListener('DOMContentLoaded', () => {
   render();
   setupScrollArrow();
+  initSupabase();
+});
+
+/* ---- 云端文章更新后重新渲染 ---- */
+window.addEventListener('fc:articles-updated', () => {
+  render();
 });
 
 /* ---- 底部翻页箭头 ---- */

@@ -8,7 +8,6 @@ const LINKS = [
   { page: 'home',  label: '首页', icon: '🏠' },
   { page: 'home',  label: '文章', icon: '📄' },
   { page: 'photos', label: '照片墙', icon: '🖼️' },
-  { page: 'guestbook', label: '留言板', icon: '✉️' },
 ];
 
 export function renderNav() {

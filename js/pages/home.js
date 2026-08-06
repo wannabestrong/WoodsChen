@@ -59,7 +59,6 @@ function renderNavRows() {
     { page: 'home',  icon: '🏠', label: '首页' },
     { page: 'home',  icon: '📄', label: '文章列表' },
     { page: 'photos', icon: '🖼️', label: '照片墙' },
-    { page: 'guestbook', icon: '✉️', label: '留言板' },
   ];
 
   return pages.map(p => `

@@ -7,7 +7,6 @@ const KEYS = {
   likes:    'fc_likes',
   likedBy:  'fc_liked_by',
   comments: 'fc_comments',
-  messages: 'fc_messages',
 };
 
 function read(key, fallback) {
@@ -39,7 +38,4 @@ export const store = {
 
   getComments()    { return read(KEYS.comments, {}); },
   setComments(v)   { write(KEYS.comments, v); },
-
-  getMessages()    { return read(KEYS.messages, []); },
-  setMessages(v)   { write(KEYS.messages, v); },
 };
