@@ -90,7 +90,7 @@ using (true);
 
 前端只能使用 Supabase Project URL 和 publishable/anon key。不要把 service role key、登录密码或其他私密密钥提交到仓库。
 
-完整的文章发布、照片更新、个人信息修改和部署步骤见 [工作手册.md](工作手册.md)。
+完整的文章发布、照片更新、个人信息修改和部署步骤见 [工作手册.md](工作手册.md)。代码架构、数据流、扩展边界和维护风险见 [项目解释与维护文档](docs/project-explanation.md)。
 
 ## 部署
 
