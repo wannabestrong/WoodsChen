@@ -2,11 +2,12 @@
    router.js — SPA 路由：页面状态管理 + 渲染调度
    ========================================= */
 
-import { renderHome, bindHomeEvents } from './pages/home.js?v=8';
-import { renderArticle, bindArticleEvents } from './pages/article.js?v=8';
-import { renderPhotos, bindPhotosEvents } from './pages/photos.js?v=8';
-import { renderAbout, bindAboutEvents } from './pages/about.js?v=8';
-import { renderNav } from './components/nav.js?v=8';
+import { renderHome, bindHomeEvents } from './pages/home.js?v=9';
+import { renderArticle, bindArticleEvents } from './pages/article.js?v=9';
+import { renderPhotos, bindPhotosEvents } from './pages/photos.js?v=9';
+import { renderAbout, bindAboutEvents } from './pages/about.js?v=9';
+import { renderAdmin, bindAdminEvents } from './pages/admin.js?v=9';
+import { renderNav } from './components/nav.js?v=9';
 
 /* ---- 状态 ---- */
 export const TOP_PAGES = ['home', 'photos']; // 首页 → 照片墙 → 首页
@@ -27,6 +28,8 @@ export function renderFromLocation() {
     state.page = 'photos'; state.articleId = hash.startsWith('photos/') ? decodeURIComponent(hash.slice(7)) : 'mountain-lake';
   } else if (hash === 'about') {
     state.page = 'about'; state.articleId = null;
+  } else if (hash === 'admin') {
+    state.page = 'admin'; state.articleId = null;
   } else if (hash.startsWith('essay/')) {
     state.page = 'article'; state.articleId = decodeURIComponent(hash.slice(6));
   }
@@ -84,6 +87,10 @@ export function render() {
       container.innerHTML = renderAbout();
       bindAboutEvents();
       break;
+    case 'admin':
+      container.innerHTML = renderAdmin();
+      bindAdminEvents();
+      break;
     default:
       container.innerHTML = renderHome();
       bindHomeEvents();
@@ -97,7 +104,7 @@ export function render() {
   /* 文章详情页隐藏底部箭头 */
   const arrow = document.getElementById('scroll-arrow');
   if (arrow) {
-    arrow.style.display = (state.page === 'article') ? 'none' : '';
+    arrow.style.display = (state.page === 'article' || state.page === 'admin') ? 'none' : '';
   }
 
   /* 滚动到顶部 */

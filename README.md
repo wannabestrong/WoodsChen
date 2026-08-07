@@ -6,6 +6,7 @@ OPEN 是一个暗色编辑风格的个人文学与摄影档案网站，使用原
 
 - Archive、Notes、Photos、About 四个视图
 - Supabase 云端文章与 Markdown 正文
+- `#/admin` 内容后台：文章/摄影集、封面、插图和批量照片上传
 - 静态内容兜底，云端暂时不可用时网站仍可浏览
 - Archive 搜索与文章筛选
 - 摄影故事、图片灯箱和 Escape 关闭
@@ -47,9 +48,9 @@ http://127.0.0.1:4173/#/archive
 `-- 工作手册.md                 # 网站内容维护指南
 ```
 
-## Supabase
+## Supabase 基础配置
 
-当前站点从 `public.articles` 读取以下字段：
+首次创建项目时，站点从 `public.articles` 读取以下字段：
 
 | 字段 | 类型 | 说明 |
 | --- | --- | --- |
@@ -88,9 +89,20 @@ to authenticated
 using (true);
 ```
 
+以上是基础表结构。启用当前内容后台时，请继续执行 `supabase/content-admin.sql`；该脚本会补齐新字段、摄影集、图片存储和完整权限策略。
+
 前端只能使用 Supabase Project URL 和 publishable/anon key。不要把 service role key、登录密码或其他私密密钥提交到仓库。
 
 完整的文章发布、照片更新、个人信息修改和部署步骤见 [工作手册.md](工作手册.md)。代码架构、数据流、扩展边界和维护风险见 [项目解释与维护文档](docs/project-explanation.md)。
+
+## 启用内容后台
+
+1. 在 Supabase SQL Editor 执行 `supabase/content-admin.sql`。
+2. 确认 Authentication 中已有你的邮箱用户。
+3. 访问 `https://你的域名/#/admin`。
+4. 登录后选择“文章”或“摄影集”发布内容。
+
+后台支持 Markdown 实时预览、资源管理器选择图片、剪贴板图片粘贴、封面上传、摄影集批量照片排序，以及草稿/发布状态。图片存储在公开读取、仅认证用户可写的 `open-media` bucket。
 
 ## 部署
 
@@ -108,8 +120,8 @@ Hash 路由使用 `#/archive`、`#/notes`、`#/photos`、`#/about` 和 `#/essay/
 
 ## 内容边界
 
-- 云端文章：首页封面暂时从三张 essay 占位图中轮换，Supabase 当前没有独立 `cover_url` 字段。
-- 摄影内容：目前写在 `js/pages/home.js` 和 `js/pages/photos.js`，修改后需要重新部署。
+- 云端文章和摄影集可通过 `#/admin` 发布；未执行后台迁移时继续使用静态兜底内容。
+- 后台当前适合新建内容，或使用相同 ID 覆盖更新；已有内容列表、载入编辑和删除界面尚未实现。
 - 头像、About 文案和部分图片仍是已批准的 `replace-later` 内容。
 - Music 没有音源文件，获得合法 MP3 或可跨域播放的 HTTPS 直链后再启用。
 

@@ -1,6 +1,6 @@
-import { store } from '../store.js?v=8';
-import { navigate, state } from '../router.js?v=8';
-import { icon } from '../components/nav.js?v=8';
+import { store } from '../store.js?v=9';
+import { navigate, state } from '../router.js?v=9';
+import { icon } from '../components/nav.js?v=9';
 
 const DEMO_ITEMS = [
   { id: 'rain-city', type: 'photo', title: '雨后的城市', place: 'Shanghai', date: '2026.08.06', image: 'assets/archive/rain-city-cover.png', size: 'wide' },
@@ -20,15 +20,28 @@ function cloudItems() {
     ...article,
     id: article.id,
     type: 'essay',
-    image: DEMO_ITEMS.filter(item => item.type === 'essay')[index % 3].image,
+    image: article.cover_url || DEMO_ITEMS.filter(item => item.type === 'essay')[index % 3].image,
     size: index % 2 ? 'medium' : 'wide',
     date: (article.date || '').replaceAll('-', '.'),
     cloud: true,
   }));
 }
 
+function cloudPhotoItems() {
+  return store.getPhotoStories().map((story, index) => ({
+    id: story.id,
+    type: 'photo',
+    title: story.title,
+    place: story.place || '',
+    date: (story.date || '').replaceAll('-', '.'),
+    image: story.cover_url || DEMO_ITEMS.filter(item => item.type === 'photo')[index % 5].image,
+    size: index === 0 ? 'hero' : index % 3 === 0 ? 'wide' : 'medium',
+    cloud: true,
+  }));
+}
+
 function items() {
-  const cloud = cloudItems();
+  const cloud = [...cloudItems(), ...cloudPhotoItems()].sort((a, b) => String(b.date).localeCompare(String(a.date)));
   if (!cloud.length) return DEMO_ITEMS;
   const ids = new Set(cloud.map(item => item.id));
   return [...cloud, ...DEMO_ITEMS.filter(item => !ids.has(item.id))].slice(0, 8);

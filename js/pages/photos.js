@@ -1,5 +1,6 @@
-import { navigate } from '../router.js?v=8';
-import { icon } from '../components/nav.js?v=8';
+import { navigate } from '../router.js?v=9';
+import { icon } from '../components/nav.js?v=9';
+import { store } from '../store.js?v=9';
 
 const PHOTO_STORIES = {
   'mountain-lake': {
@@ -34,7 +35,15 @@ const PHOTO_STORIES = {
 };
 
 export function renderPhotos(storyId = 'mountain-lake') {
-  const story = PHOTO_STORIES[storyId] || PHOTO_STORIES['mountain-lake'];
+  const cloudStory = store.getPhotoStories().find(item => String(item.id) === String(storyId));
+  const story = cloudStory ? {
+    title: cloudStory.title,
+    place: cloudStory.place || '',
+    date: cloudStory.date || '',
+    cover: cloudStory.cover_url || '',
+    gallery: (cloudStory.images || []).map(image => [image.url || image.src, image.alt || cloudStory.title, image.orientation || 'landscape']),
+    note: cloudStory.description || cloudStory.summary || '',
+  } : (PHOTO_STORIES[storyId] || PHOTO_STORIES['mountain-lake']);
   return `<article class="photo-story">
     <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回归档</span></button>
     <header class="photo-story-header"><span class="detail-type">Photo</span><h1 class="photo-story-title">${escapeHtml(story.title)}</h1><p class="photo-story-meta">${escapeHtml(story.place)} · ${escapeHtml(story.date)}</p></header>

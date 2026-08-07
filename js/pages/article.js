@@ -1,7 +1,7 @@
-import { store } from '../store.js?v=8';
-import { navigate } from '../router.js?v=8';
-import { renderMarkdown } from '../utils/markdown.js?v=8';
-import { icon } from '../components/nav.js?v=8';
+import { store } from '../store.js?v=9';
+import { navigate } from '../router.js?v=9';
+import { renderMarkdown } from '../utils/markdown.js?v=9';
+import { icon } from '../components/nav.js?v=9';
 
 const DEMO_ESSAYS = {
   loneliness: { title: '关于孤独的十个片段', date: '2026.08.01' },

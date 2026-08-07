@@ -4,6 +4,7 @@
 
 const KEYS = {
   articles: 'fc_articles',
+  photoStories: 'fc_photo_stories',
   likes:    'fc_likes',
   likedBy:  'fc_liked_by',
   comments: 'fc_comments',
@@ -29,6 +30,8 @@ function write(key, value) {
 export const store = {
   getArticles()    { return read(KEYS.articles, []); },
   setArticles(v)   { write(KEYS.articles, v); },
+  getPhotoStories(){ return read(KEYS.photoStories, []); },
+  setPhotoStories(v){ write(KEYS.photoStories, v); },
 
   getLikes()       { return read(KEYS.likes, {}); },
   setLikes(v)      { write(KEYS.likes, v); },

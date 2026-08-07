@@ -106,21 +106,21 @@ Router 使用 `container.innerHTML = renderXxx()`，因此每次导航都会销�
 模块和 CSS URL 带有缓存版本，例如：
 
 ```js
-import { navigate } from '../router.js?v=8';
+import { navigate } from '../router.js?v=9';
 ```
 
 ```html
-<script type="module" src="js/app.js?v=8"></script>
+<script type="module" src="js/app.js?v=9"></script>
 ```
 
 重要规则：同一次发布必须让整个 ES module 依赖图使用同一个版本号。不要只修改一两个 import。
 
-原因：浏览器会把 `router.js?v=8` 和 `router.js?v=9` 视为两个不同模块，分别创建两份 `state`。导航可能更新其中一份状态，而页面由另一份状态渲染，表现为点击后又回到旧页面。
+原因：浏览器会把 `router.js?v=9` 和 `router.js?v=10` 视为两个不同模块，分别创建两份 `state`。导航可能更新其中一份状态，而页面由另一份状态渲染，表现为点击后又回到旧页面。
 
 发布 JavaScript 或 CSS 修改时：
 
-1. 将当前版本统一提升，例如 `v=8` 改为 `v=9`。
-2. 使用 `rg "\\?v=8" index.html js` 找出全部引用。
+1. 将当前版本统一提升，例如 `v=9` 改为 `v=10`。
+2. 使用 `rg "\\?v=9" index.html js` 找出全部引用。
 3. 确认旧版本号没有残留。
 
 ## 6. 页面职责
@@ -234,7 +234,7 @@ export const PHOTO_STORIES = [
 ];
 ```
 
-然后新增 `#/photos/<id>` 路由。是否迁移到 Supabase 应取决于发布频率；少量摄影集继续随 Git 部署更简单，频繁发布再设计 `photo_stories` 和 Storage。
+摄影集已经同时支持 `#/photos/<id>` 独立路由和 Supabase `photo_stories` 数据。静态 `PHOTO_STORIES` 继续作为云端不可用时的兜底内容。
 
 ## 10. 样式系统
 
@@ -357,11 +357,11 @@ git diff --check
 ## 16. 已知限制
 
 - Archive 最多合并显示 8 项，没有分页。
-- 云端文章没有独立封面、地点或卡片尺寸字段。
-- 文章没有网页管理后台，修改主要通过 Supabase Dashboard。
+- 云端文章已有独立封面和发布状态，但没有地点或卡片尺寸字段。
+- 后台尚未提供已有内容列表、载入编辑和删除按钮。
 - 文章详情固定使用一张占位主图。
 - 上一篇/下一篇关系为静态内容。
-- 摄影集目前由 `PHOTO_STORIES` 静态映射维护，尚未接入 Supabase 后台。
+- 摄影集优先读取 Supabase，`PHOTO_STORIES` 静态映射作为兜底。
 - About 与社交链接仍含占位内容。
 - Music 尚未接入音源。
 - 依赖三个外部 CDN 模块。
@@ -370,11 +370,24 @@ git diff --check
 ## 17. 推荐的后续维护优先级
 
 1. 替换真实头像、About 文案和社交链接。
-2. 为 Supabase 文章增加 `cover_url`。
-3. 把摄影集改成数据驱动的独立详情路由。
-4. 增加受认证保护的轻量发布后台，替代 Console 操作。
-5. 获得合法音源后完成 Music。
-6. 内容规模超过 8 项后增加完整 Archive 分页或加载策略。
+2. 为后台增加已有内容列表、载入编辑和删除能力。
+3. 为上传后被替换或删除的图片增加 Storage 清理机制。
+4. 获得合法音源后完成 Music。
+5. 内容规模超过 8 项后增加完整 Archive 分页或加载策略。
 7. 如果长期维护，考虑加入最小化自动测试和本地化依赖。
 
 每次扩展都应优先保持现有内容边界和视觉基线，不要把一次内容更新顺带变成无关的大规模重构。
+
+## 18. 内容后台
+
+后台路由为 `#/admin`，页面文件是 `js/pages/admin.js`，样式是 `css/admin.css`。它不出现在公开导航中，只能通过地址进入；真正的权限由 Supabase Auth、表 RLS 和 Storage policy 控制，隐藏入口本身不是安全措施。
+
+数据库迁移位于 `supabase/content-admin.sql`，负责：
+
+- 扩展 `articles.cover_url/status/updated_at`。
+- 创建 `photo_stories`。
+- 创建 `open-media` Storage bucket。
+- 公开读取已发布内容，认证用户可读草稿并写入内容。
+- 公开读取媒体，认证用户可上传、更新和删除媒体。
+
+后台当前支持新建和使用相同 ID 覆盖更新；尚未提供内容列表、加载已有内容到表单和删除按钮。需要管理既有内容时暂时使用 Supabase Table Editor，后续可在后台增加管理列表。
