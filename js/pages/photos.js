@@ -1,5 +1,5 @@
-import { navigate } from '../router.js?v=5';
-import { icon } from '../components/nav.js?v=5';
+import { navigate } from '../router.js?v=6';
+import { icon } from '../components/nav.js?v=6';
 
 export function renderPhotos() {
   return `<article class="photo-story">

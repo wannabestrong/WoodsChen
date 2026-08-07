@@ -106,21 +106,21 @@ Router 使用 `container.innerHTML = renderXxx()`，因此每次导航都会销�
 模块和 CSS URL 带有缓存版本，例如：
 
 ```js
-import { navigate } from '../router.js?v=5';
+import { navigate } from '../router.js?v=6';
 ```
 
 ```html
-<script type="module" src="js/app.js?v=5"></script>
+<script type="module" src="js/app.js?v=6"></script>
 ```
 
 重要规则：同一次发布必须让整个 ES module 依赖图使用同一个版本号。不要只修改一两个 import。
 
-原因：浏览器会把 `router.js?v=5` 和 `router.js?v=6` 视为两个不同模块，分别创建两份 `state`。导航可能更新其中一份状态，而页面由另一份状态渲染，表现为点击后又回到旧页面。
+原因：浏览器会把 `router.js?v=6` 和 `router.js?v=7` 视为两个不同模块，分别创建两份 `state`。导航可能更新其中一份状态，而页面由另一份状态渲染，表现为点击后又回到旧页面。
 
 发布 JavaScript 或 CSS 修改时：
 
-1. 将当前版本统一提升，例如 `v=5` 改为 `v=6`。
-2. 使用 `rg "\\?v=5" index.html js` 找出全部引用。
+1. 将当前版本统一提升，例如 `v=6` 改为 `v=7`。
+2. 使用 `rg "\\?v=6" index.html js` 找出全部引用。
 3. 确认旧版本号没有残留。
 
 ## 6. 页面职责

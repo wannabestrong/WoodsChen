@@ -1,4 +1,4 @@
-import { icon } from '../components/nav.js?v=5';
+import { icon } from '../components/nav.js?v=6';
 
 export function renderAbout() {
   return `<section class="about-page" aria-labelledby="about-title">

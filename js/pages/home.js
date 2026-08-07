@@ -1,6 +1,6 @@
-import { store } from '../store.js?v=5';
-import { navigate, state } from '../router.js?v=5';
-import { icon } from '../components/nav.js?v=5';
+import { store } from '../store.js?v=6';
+import { navigate, state } from '../router.js?v=6';
+import { icon } from '../components/nav.js?v=6';
 
 const DEMO_ITEMS = [
   { id: 'rain-city', type: 'photo', title: '雨后的城市', place: 'Shanghai', date: '2026.08.06', image: 'assets/archive/rain-city-cover.png', size: 'wide' },
@@ -118,7 +118,9 @@ function renderMusic() {
 
 export function bindHomeEvents() {
   const applyFilter = filter => { state.filter = filter; navigate('home', filter); };
-  document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => applyFilter(button.dataset.filter)));
+  document.querySelectorAll('.identity-nav [data-filter], .view-all[data-filter]').forEach(button => {
+    button.addEventListener('click', () => applyFilter(button.dataset.filter));
+  });
   document.querySelectorAll('.identity-nav [data-page]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.page)));
   document.querySelectorAll('.archive-card').forEach(card => {
     const open = () => navigate(card.dataset.type === 'photo' ? 'photos' : 'article', card.dataset.id);
