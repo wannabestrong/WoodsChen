@@ -53,7 +53,7 @@ index.html
 | --- | --- | --- |
 | `#/archive` | `page=home, filter=all` | 完整 Archive |
 | `#/notes` | `page=home, filter=essay` | 文章筛选 |
-| `#/photos` | `page=photos` | Photo Story |
+| `#/photos/<id>` | `page=photos, articleId=<id>` | 对应 Photo Story |
 | `#/about` | `page=about` | About |
 | `#/essay/<id>` | `page=article, articleId=<id>` | 文章详情 |
 
@@ -106,21 +106,21 @@ Router 使用 `container.innerHTML = renderXxx()`，因此每次导航都会销�
 模块和 CSS URL 带有缓存版本，例如：
 
 ```js
-import { navigate } from '../router.js?v=6';
+import { navigate } from '../router.js?v=8';
 ```
 
 ```html
-<script type="module" src="js/app.js?v=6"></script>
+<script type="module" src="js/app.js?v=8"></script>
 ```
 
 重要规则：同一次发布必须让整个 ES module 依赖图使用同一个版本号。不要只修改一两个 import。
 
-原因：浏览器会把 `router.js?v=6` 和 `router.js?v=7` 视为两个不同模块，分别创建两份 `state`。导航可能更新其中一份状态，而页面由另一份状态渲染，表现为点击后又回到旧页面。
+原因：浏览器会把 `router.js?v=8` 和 `router.js?v=9` 视为两个不同模块，分别创建两份 `state`。导航可能更新其中一份状态，而页面由另一份状态渲染，表现为点击后又回到旧页面。
 
 发布 JavaScript 或 CSS 修改时：
 
-1. 将当前版本统一提升，例如 `v=6` 改为 `v=7`。
-2. 使用 `rg "\\?v=6" index.html js` 找出全部引用。
+1. 将当前版本统一提升，例如 `v=8` 改为 `v=9`。
+2. 使用 `rg "\\?v=8" index.html js` 找出全部引用。
 3. 确认旧版本号没有残留。
 
 ## 6. 页面职责
@@ -160,7 +160,7 @@ import { navigate } from '../router.js?v=6';
 - 点击图片打开灯箱。
 - Escape 或点击 overlay 关闭灯箱。
 
-目前所有 `type: 'photo'` 的 Archive 卡片都会进入同一个 `#/photos` 页面。若要每个摄影集独立详情，应新增 `photoId` 路由和摄影集数据模型，而不是继续在单个模板里写条件分支。
+每个 `type: 'photo'` 的 Archive 卡片会进入 `#/photos/<id>`。`PHOTO_STORIES` 负责把 ID 映射到标题、地点、日期、封面、序列图片和说明；首页卡片 ID 与该映射必须一致。
 
 ### `js/pages/about.js`
 
@@ -361,7 +361,7 @@ git diff --check
 - 文章没有网页管理后台，修改主要通过 Supabase Dashboard。
 - 文章详情固定使用一张占位主图。
 - 上一篇/下一篇关系为静态内容。
-- 所有摄影卡片共用一个 Photo Story。
+- 摄影集目前由 `PHOTO_STORIES` 静态映射维护，尚未接入 Supabase 后台。
 - About 与社交链接仍含占位内容。
 - Music 尚未接入音源。
 - 依赖三个外部 CDN 模块。

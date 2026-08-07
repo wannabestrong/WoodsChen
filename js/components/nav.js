@@ -1,4 +1,4 @@
-import { state, navigate } from '../router.js?v=6';
+import { state, navigate } from '../router.js?v=8';
 
 const LINKS = [
   { page: 'home', label: 'Archive', filter: 'all' },
