@@ -1,6 +1,6 @@
-import { store } from '../store.js?v=9';
-import { navigate, state } from '../router.js?v=9';
-import { icon } from '../components/nav.js?v=9';
+import { store } from '../store.js?v=10';
+import { navigate, state } from '../router.js?v=10';
+import { icon } from '../components/nav.js?v=10';
 
 const DEMO_ITEMS = [
   { id: 'rain-city', type: 'photo', title: '雨后的城市', place: 'Shanghai', date: '2026.08.06', image: 'assets/archive/rain-city-cover.png', size: 'wide' },
@@ -14,6 +14,7 @@ const DEMO_ITEMS = [
 ];
 
 let activeSearchHandler = null;
+let cleanupSearchInteractions = () => {};
 
 function cloudItems() {
   return store.getArticles().map((article, index) => ({
@@ -96,8 +97,11 @@ export function renderHome() {
       </aside>
     </div>
     <div class="search-overlay" id="search-overlay" hidden>
-      <label class="sr-only" for="archive-search">搜索 Archive</label>
-      <input id="archive-search" type="search" placeholder="搜索标题、地点或日期" autocomplete="off">
+      <div class="search-panel" role="search">
+        <label class="sr-only" for="archive-search">搜索 Archive</label>
+        <input id="archive-search" type="search" placeholder="搜索标题、地点或日期" autocomplete="off">
+        <button class="search-close" type="button" aria-label="关闭搜索">${icon('x')}</button>
+      </div>
     </div>`;
 }
 
@@ -130,6 +134,7 @@ function renderMusic() {
 }
 
 export function bindHomeEvents() {
+  cleanupSearchInteractions();
   const applyFilter = filter => { state.filter = filter; navigate('home', filter); };
   document.querySelectorAll('.identity-nav [data-filter], .view-all[data-filter]').forEach(button => {
     button.addEventListener('click', () => applyFilter(button.dataset.filter));
@@ -150,6 +155,16 @@ export function bindHomeEvents() {
     if (!overlay.hidden) input?.focus();
   };
   window.addEventListener('open:search', activeSearchHandler);
+  const closeSearch = () => { if (overlay) overlay.hidden = true; };
+  const onOverlayClick = event => { if (event.target === overlay) closeSearch(); };
+  const onSearchKeyDown = event => { if (event.key === 'Escape' && !overlay?.hidden) closeSearch(); };
+  overlay?.addEventListener('click', onOverlayClick);
+  overlay?.querySelector('.search-close')?.addEventListener('click', closeSearch);
+  document.addEventListener('keydown', onSearchKeyDown);
+  cleanupSearchInteractions = () => {
+    if (activeSearchHandler) window.removeEventListener('open:search', activeSearchHandler);
+    document.removeEventListener('keydown', onSearchKeyDown);
+  };
   input?.addEventListener('input', () => {
     const term = input.value.trim().toLowerCase();
     document.querySelectorAll('.archive-card').forEach(card => { card.hidden = term && !card.dataset.search.includes(term); });

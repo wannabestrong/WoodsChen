@@ -51,5 +51,5 @@ Build owner: `identity-skill/references/frontend-app-builder.md` fallback. Accep
 - Exact captures checked at 1440x900, 2200x1200, and 390x844.
 - No horizontal overflow, incoherent overlap, accidental subject crop, unreadable control text, or missing primary focal point was observed.
 - Notes filtering, search filtering, essay navigation and hash refresh, photo lightbox and Escape, controlled wheel page switch, and disabled Music controls were verified in the in-app Browser.
+- 2026-08-07 interaction regression: search closes by backdrop, close button and Escape; display settings provide persistent visible controls; `#/photos` lists all photo stories before opening `#/photos/<id>`; essay pagination uses adjacent essay IDs only.
 - Visible-copy diff: reference placeholder/skeleton copy was replaced only where approved content boundaries require real labels or clearly disclosed placeholder prose; no unapproved hero eyebrow, badge, CTA, or section was added.
-

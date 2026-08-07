@@ -1,6 +1,6 @@
-import { navigate } from '../router.js?v=9';
-import { icon } from '../components/nav.js?v=9';
-import { store } from '../store.js?v=9';
+import { navigate } from '../router.js?v=10';
+import { icon } from '../components/nav.js?v=10';
+import { store } from '../store.js?v=10';
 
 const PHOTO_STORIES = {
   'mountain-lake': {
@@ -34,7 +34,20 @@ const PHOTO_STORIES = {
   }
 };
 
-export function renderPhotos(storyId = 'mountain-lake') {
+function stories() {
+  const cloudStories = store.getPhotoStories().map(item => ({
+    id: item.id, title: item.title, place: item.place || '', date: item.date || '',
+    cover: item.cover_url || '',
+    gallery: (item.images || []).map(image => [image.url || image.src, image.alt || item.title, image.orientation || 'landscape']),
+    note: item.description || item.summary || '',
+  }));
+  const cloudIds = new Set(cloudStories.map(item => String(item.id)));
+  const fallbacks = Object.entries(PHOTO_STORIES).filter(([id]) => !cloudIds.has(id)).map(([id, story]) => ({ id, ...story }));
+  return [...cloudStories, ...fallbacks].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+}
+
+export function renderPhotos(storyId = null) {
+  if (!storyId) return renderPhotoIndex();
   const cloudStory = store.getPhotoStories().find(item => String(item.id) === String(storyId));
   const story = cloudStory ? {
     title: cloudStory.title,
@@ -43,7 +56,8 @@ export function renderPhotos(storyId = 'mountain-lake') {
     cover: cloudStory.cover_url || '',
     gallery: (cloudStory.images || []).map(image => [image.url || image.src, image.alt || cloudStory.title, image.orientation || 'landscape']),
     note: cloudStory.description || cloudStory.summary || '',
-  } : (PHOTO_STORIES[storyId] || PHOTO_STORIES['mountain-lake']);
+  } : PHOTO_STORIES[storyId];
+  if (!story) return renderPhotoIndex();
   return `<article class="photo-story">
     <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回归档</span></button>
     <header class="photo-story-header"><span class="detail-type">Photo</span><h1 class="photo-story-title">${escapeHtml(story.title)}</h1><p class="photo-story-meta">${escapeHtml(story.place)} · ${escapeHtml(story.date)}</p></header>
@@ -55,10 +69,25 @@ export function renderPhotos(storyId = 'mountain-lake') {
   </article>`;
 }
 
+function renderPhotoIndex() {
+  return `<section class="photo-index" aria-labelledby="photo-index-title">
+    <header class="photo-index-header"><span class="detail-type">Photo Archive</span><h1 id="photo-index-title">Photos</h1><p>摄影集</p></header>
+    <div class="photo-index-grid">${stories().map(story => `<article class="photo-index-card" tabindex="0" data-story="${escapeHtml(story.id)}">
+      <div class="photo-index-cover"><img src="${escapeHtml(story.cover)}" alt="${escapeHtml(story.title)}" loading="lazy"></div>
+      <div class="photo-index-copy"><h2>${escapeHtml(story.title)}</h2><p>${escapeHtml(story.place)} · ${escapeHtml(story.date)}</p></div>
+    </article>`).join('')}</div>
+  </section>`;
+}
+
 function escapeHtml(value = '') { return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
 
 export function bindPhotosEvents() {
   document.getElementById('back-to-home')?.addEventListener('click', () => navigate('home'));
+  document.querySelectorAll('[data-story]').forEach(card => {
+    const open = () => navigate('photos', card.dataset.story);
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); } });
+  });
   document.querySelectorAll('.photo-frame').forEach(frame => {
     const open = () => openLightbox(frame.querySelector('img').src, frame.querySelector('img').alt);
     frame.addEventListener('click', open);

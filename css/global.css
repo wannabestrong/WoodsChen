@@ -111,7 +111,19 @@ figure { margin: 0; }
   background: var(--blue);
 }
 
-.nav-tools { justify-self: end; display: flex; gap: 8px; }
+.nav-tools { position: relative; justify-self: end; display: flex; gap: 8px; }
+.display-settings-panel { position: absolute; z-index: 210; top: calc(100% + 10px); right: 0; width: 230px; padding: 12px; border: 1px solid var(--line-strong); border-radius: 6px; background: #0b0f14; box-shadow: 0 16px 36px rgba(0, 0, 0, 0.36); }
+.display-settings-panel[hidden] { display: none; }
+.settings-heading, .display-settings-panel label { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.settings-heading { margin-bottom: 8px; color: var(--text); font-size: 12px; }
+.settings-close { width: 30px; height: 30px; display: grid; place-items: center; border: 0; background: transparent; color: var(--text-muted); }
+.settings-close svg { width: 15px; height: 15px; }
+.display-settings-panel label { min-height: 38px; color: var(--text-soft); font-size: 12px; cursor: pointer; }
+.display-settings-panel input { width: 16px; height: 16px; accent-color: var(--blue); }
+
+html.high-contrast { --text: #ffffff; --text-soft: #d8dde5; --text-muted: #aab3bf; --line: #343d48; --line-strong: #566474; }
+html.large-text .markdown-body { font-size: 18px; }
+html.reduce-motion *, html.reduce-motion *::before, html.reduce-motion *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
 .icon-button {
   width: 32px;
   height: 32px;

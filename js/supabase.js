@@ -12,7 +12,7 @@
    ========================================= */
 
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { store } from './store.js?v=9';
+import { store } from './store.js?v=10';
 
 const SUPABASE_URL = 'https://fnexvbfzbqpqwtxlwoza.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable__pLRoB-IFitrtRxahCRraQ_r81QMjA2';

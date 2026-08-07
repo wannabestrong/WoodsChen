@@ -130,9 +130,13 @@
 .music-controls svg { width: 15px; height: 15px; }
 .music-unavailable { margin-top: 10px; color: var(--text-muted); font-size: 10px; text-align: center; }
 
-.search-overlay { position: fixed; z-index: 180; inset: var(--header-height) 0 auto; padding: 12px var(--page-gutter); background: rgba(7, 9, 12, 0.98); border-bottom: 1px solid var(--line); }
+.search-overlay { position: fixed; z-index: 180; inset: var(--header-height) 0 0; padding: 12px var(--page-gutter); background: rgba(2, 3, 5, 0.72); }
 .search-overlay[hidden] { display: none; }
-.search-overlay input { width: min(680px, 100%); height: 42px; display: block; margin: 0 auto; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); outline: none; }
+.search-panel { position: relative; width: min(680px, 100%); margin: 0 auto; }
+.search-overlay input { width: 100%; height: 42px; display: block; padding: 0 46px 0 14px; border: 1px solid var(--line-strong); border-radius: var(--radius); background: var(--surface); color: var(--text); outline: none; }
+.search-close { position: absolute; top: 4px; right: 4px; width: 34px; height: 34px; display: grid; place-items: center; border: 0; background: transparent; color: var(--text-muted); }
+.search-close:hover { color: var(--text); }
+.search-close svg { width: 16px; height: 16px; }
 
 @media (max-width: 1180px) {
   .archive-shell { grid-template-columns: 210px minmax(0, 1fr); }

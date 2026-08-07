@@ -2,8 +2,8 @@
    app.js — 主入口：初始化 + 全局事件 + 底部翻页箭头
    ========================================= */
 
-import { state, render, renderFromLocation, arrowNext, arrowPrev } from './router.js?v=9';
-import { initSupabase } from './supabase.js?v=9';
+import { state, render, renderFromLocation, arrowNext, arrowPrev } from './router.js?v=10';
+import { initSupabase } from './supabase.js?v=10';
 
 /* ---- 初始化 ---- */
 document.addEventListener('DOMContentLoaded', () => {
@@ -16,7 +16,7 @@ window.addEventListener('popstate', renderFromLocation);
 
 /* ---- 云端文章更新后重新渲染 ---- */
 window.addEventListener('fc:articles-updated', () => {
-  render();
+  if (state.page !== 'admin') render();
 });
 
 /* ---- 底部翻页箭头 ---- */

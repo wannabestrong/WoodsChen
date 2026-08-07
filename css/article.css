@@ -23,6 +23,7 @@
 .detail-pagination button:hover { color: var(--blue); }
 .detail-pagination .next { text-align: right; }
 .detail-pagination small { display: block; margin-bottom: 4px; color: var(--text-muted); }
+.pagination-spacer { min-width: 0; }
 .archive-return { display: inline-flex; align-items: center; gap: 8px; }
 .archive-return svg { width: 15px; height: 15px; }
 

@@ -2,12 +2,12 @@
    router.js — SPA 路由：页面状态管理 + 渲染调度
    ========================================= */
 
-import { renderHome, bindHomeEvents } from './pages/home.js?v=9';
-import { renderArticle, bindArticleEvents } from './pages/article.js?v=9';
-import { renderPhotos, bindPhotosEvents } from './pages/photos.js?v=9';
-import { renderAbout, bindAboutEvents } from './pages/about.js?v=9';
-import { renderAdmin, bindAdminEvents } from './pages/admin.js?v=9';
-import { renderNav } from './components/nav.js?v=9';
+import { renderHome, bindHomeEvents } from './pages/home.js?v=10';
+import { renderArticle, bindArticleEvents } from './pages/article.js?v=10';
+import { renderPhotos, bindPhotosEvents } from './pages/photos.js?v=10';
+import { renderAbout, bindAboutEvents } from './pages/about.js?v=10';
+import { renderAdmin, bindAdminEvents } from './pages/admin.js?v=10';
+import { renderNav } from './components/nav.js?v=10';
 
 /* ---- 状态 ---- */
 export const TOP_PAGES = ['home', 'photos']; // 首页 → 照片墙 → 首页
@@ -25,7 +25,7 @@ export function renderFromLocation() {
   } else if (hash === 'notes') {
     state.page = 'home'; state.filter = 'essay'; state.articleId = null;
   } else if (hash === 'photos' || hash.startsWith('photos/')) {
-    state.page = 'photos'; state.articleId = hash.startsWith('photos/') ? decodeURIComponent(hash.slice(7)) : 'mountain-lake';
+    state.page = 'photos'; state.articleId = hash.startsWith('photos/') ? decodeURIComponent(hash.slice(7)) : null;
   } else if (hash === 'about') {
     state.page = 'about'; state.articleId = null;
   } else if (hash === 'admin') {
@@ -47,7 +47,7 @@ export function navigate(page, data = null) {
     state.filter = data || 'all';
   } else if (page === 'photos') {
     state.page = 'photos';
-    state.articleId = data || 'mountain-lake';
+    state.articleId = data || null;
   } else {
     state.page = page;
     state.articleId = null;
@@ -57,7 +57,7 @@ export function navigate(page, data = null) {
     : state.page === 'article'
       ? `essay/${encodeURIComponent(state.articleId)}`
       : state.page === 'photos'
-        ? `photos/${encodeURIComponent(state.articleId || 'mountain-lake')}`
+        ? (state.articleId ? `photos/${encodeURIComponent(state.articleId)}` : 'photos')
         : state.page;
   history.pushState(null, '', `#/${hash}`);
   render();
@@ -80,7 +80,7 @@ export function render() {
       bindArticleEvents();
       break;
     case 'photos':
-      container.innerHTML = renderPhotos(state.articleId || 'mountain-lake');
+      container.innerHTML = renderPhotos(state.articleId);
       bindPhotosEvents();
       break;
     case 'about':

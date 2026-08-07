@@ -1,7 +1,7 @@
-import { store } from '../store.js?v=9';
-import { navigate } from '../router.js?v=9';
-import { renderMarkdown } from '../utils/markdown.js?v=9';
-import { icon } from '../components/nav.js?v=9';
+import { store } from '../store.js?v=10';
+import { navigate } from '../router.js?v=10';
+import { renderMarkdown } from '../utils/markdown.js?v=10';
+import { icon } from '../components/nav.js?v=10';
 
 const DEMO_ESSAYS = {
   loneliness: { title: '关于孤独的十个片段', date: '2026.08.01' },
@@ -21,6 +21,8 @@ export function renderArticle(articleId) {
   const demo = DEMO_ESSAYS[articleId];
   const article = cloudArticle || demo || { title: '文章标题', date: '2026.08.01' };
   const body = cloudArticle?.content || PLACEHOLDER;
+  const adjacent = getAdjacentArticles(articleId, articles);
+  const cover = cloudArticle?.cover_url || 'assets/archive/rain-city-cover.png';
 
   return `<article class="detail-page">
     <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回归档</span></button>
@@ -30,14 +32,30 @@ export function renderArticle(articleId) {
     </header>
     <hr class="detail-rule">
     <div class="markdown-body">${renderMarkdown(body)}</div>
-    <figure class="article-image"><img src="assets/archive/rain-city-cover.png" alt="雨夜城市街道"></figure>
-    <p class="article-caption">生成的视觉占位素材，待真实作品替换。</p>
+    <figure class="article-image"><img src="${escapeHtml(cover)}" alt="${escapeHtml(article.title)}"></figure>
+    ${cloudArticle?.cover_url ? '' : '<p class="article-caption">生成的视觉占位素材，待真实作品替换。</p>'}
     <nav class="detail-pagination" aria-label="文章导航">
-      <button type="button" data-open="mountain-lake"><small>‹ 上一篇</small>山与湖的对话</button>
+      ${renderAdjacentButton(adjacent.previous, 'previous')}
       <button class="archive-return" type="button" data-home>${icon('layout-grid')}<span>回到归档</span></button>
-      <button class="next" type="button" data-open="future-self"><small>下一篇 ›</small>写给未来的自己</button>
+      ${renderAdjacentButton(adjacent.next, 'next')}
     </nav>
   </article>`;
+}
+
+function getAdjacentArticles(articleId, cloudArticles) {
+  const cloudIds = new Set(cloudArticles.map(article => String(article.id)));
+  const demos = Object.entries(DEMO_ESSAYS).filter(([id]) => !cloudIds.has(id)).map(([id, article]) => ({ id, ...article }));
+  const list = [...cloudArticles, ...demos].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+  const index = list.findIndex(article => String(article.id) === String(articleId));
+  if (index < 0) return { previous: null, next: null };
+  return { previous: list[index - 1] || null, next: list[index + 1] || null };
+}
+
+function renderAdjacentButton(article, direction) {
+  const className = direction === 'next' ? ' class="next"' : '';
+  const label = direction === 'next' ? '下一篇 ›' : '‹ 上一篇';
+  if (!article) return `<span class="pagination-spacer" aria-hidden="true"></span>`;
+  return `<button${className} type="button" data-open="${escapeHtml(article.id)}"><small>${label}</small>${escapeHtml(article.title)}</button>`;
 }
 
 export function bindArticleEvents() {
