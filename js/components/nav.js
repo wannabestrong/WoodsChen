@@ -1,65 +1,39 @@
-/* =========================================
-   nav.js — 顶部导航栏组件
-   ========================================= */
-
-import { state, navigate, render } from '../router.js';
+import { state, navigate } from '../router.js?v=5';
 
 const LINKS = [
-  { page: 'home',  label: '首页', icon: '🏠' },
-  { page: 'home',  label: '文章', icon: '📄' },
-  { page: 'photos', label: '照片墙', icon: '🖼️' },
+  { page: 'home', label: 'Archive', filter: 'all' },
+  { page: 'home', label: 'Notes', filter: 'essay' },
+  { page: 'photos', label: 'Photos' },
+  { page: 'about', label: 'About' },
 ];
+
+export function icon(name, label = '') {
+  const hidden = label ? '' : ' aria-hidden="true"';
+  return `<i data-lucide="${name}"${hidden}></i>`;
+}
 
 export function renderNav() {
   const nav = document.getElementById('top-nav');
   if (!nav) return;
 
-  /* 判断当前激活的导航项 */
-  let active = state.page;
-  if (state.page === 'article') active = 'home'; // 详情页高亮"首页"
-
+  const activeLabel = state.page === 'article' ? 'Archive' : state.page === 'home' ? (state.filter === 'essay' ? 'Notes' : 'Archive') : state.page === 'photos' ? 'Photos' : 'About';
   nav.innerHTML = `
     <div class="nav-inner">
-      <span class="nav-brand">ForestChen</span>
-      <div class="nav-links">
-        ${LINKS.map(l => `
-          <span class="nav-link${active === l.page ? ' active' : ''}"
-                data-page="${l.page}">
-            ${l.icon} ${l.label}
-          </span>
-        `).join('')}
+      <button class="nav-brand" type="button" data-page="home" aria-label="返回 Archive">OPEN</button>
+      <div class="nav-links" aria-label="主导航">
+        ${LINKS.map(link => `<button class="nav-link${activeLabel === link.label ? ' active' : ''}" type="button" data-page="${link.page}" data-filter="${link.filter || ''}">${link.label}</button>`).join('')}
       </div>
-    </div>
-  `;
+      <div class="nav-tools">
+        <button class="icon-button" id="global-search" type="button" aria-label="搜索" title="搜索">${icon('search')}</button>
+        <button class="icon-button" id="display-settings" type="button" aria-label="显示设置" title="显示设置">${icon('settings')}</button>
+      </div>
+    </div>`;
 
-  nav.querySelectorAll('.nav-link').forEach(el => {
-    el.addEventListener('click', () => {
-      const page = el.dataset.page;
-      /* "首页"和"文章"都切到首页，但"文章"滚动到文章列表 */
-      if (page === 'home') {
-        navigate('home');
-        /* 如果点击的是"文章"标签，滚动到文章列表区 */
-        if (el.textContent.includes('文章')) {
-          setTimeout(() => {
-            const list = document.getElementById('article-list');
-            if (list) list.scrollIntoView({ behavior: 'smooth' });
-          }, 100);
-        }
-      } else {
-        navigate(page);
-      }
-    });
+  nav.querySelectorAll('[data-page]').forEach(button => {
+    button.addEventListener('click', () => navigate(button.dataset.page, button.dataset.filter || null));
+  });
+  nav.querySelector('#global-search')?.addEventListener('click', () => window.dispatchEvent(new CustomEvent('open:search')));
+  nav.querySelector('#display-settings')?.addEventListener('click', () => {
+    document.documentElement.classList.toggle('high-contrast');
   });
 }
-
-/* ---- 滚动时导航栏底部加线 ---- */
-let navHasLine = false;
-window.addEventListener('scroll', () => {
-  const nav = document.getElementById('top-nav');
-  if (!nav) return;
-  const scrolled = window.scrollY > 10;
-  if (scrolled !== navHasLine) {
-    navHasLine = scrolled;
-    nav.classList.toggle('scrolled', scrolled);
-  }
-});

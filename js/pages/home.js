@@ -1,152 +1,146 @@
-/* =========================================
-   home.js — 首页渲染
-   ========================================= */
+import { store } from '../store.js?v=5';
+import { navigate, state } from '../router.js?v=5';
+import { icon } from '../components/nav.js?v=5';
 
-import { store } from '../store.js';
-import { navigate } from '../router.js';
+const DEMO_ITEMS = [
+  { id: 'rain-city', type: 'photo', title: '雨后的城市', place: 'Shanghai', date: '2026.08.06', image: 'assets/archive/rain-city-cover.png', size: 'wide' },
+  { id: 'loneliness', type: 'essay', title: '关于孤独的十个片段', date: '2026.08.01', image: 'assets/archive/loneliness-cover.png', size: 'wide' },
+  { id: 'mountain-lake', type: 'photo', title: '山与湖的对话', place: 'Dali', date: '2026.07.28', image: 'assets/archive/mountain-lake-cover.png', size: 'hero' },
+  { id: 'future-self', type: 'essay', title: '写给未来的自己', date: '2026.07.25', image: 'assets/archive/future-self-cover.png', size: 'tall' },
+  { id: 'dusk-tram', type: 'photo', title: '黄昏电车', place: 'Chongqing', date: '2026.07.18', image: 'assets/archive/dusk-tram-cover.png', size: 'medium' },
+  { id: 'unfinished-thoughts', type: 'essay', title: '一些不成文的想法', date: '2026.07.12', image: 'assets/archive/unfinished-thoughts-cover.png', size: 'medium' },
+  { id: 'seaside-evening', type: 'photo', title: '海边的傍晚', place: 'Xiamen', date: '2026.07.05', image: 'assets/archive/seaside-evening-cover.png', size: 'medium' },
+  { id: 'window-light', type: 'photo', title: '窗边的光影', place: 'Beijing', date: '2026.06.21', image: 'assets/archive/window-light-cover.png', size: 'wide' },
+];
+
+let activeSearchHandler = null;
+
+function cloudItems() {
+  return store.getArticles().map((article, index) => ({
+    ...article,
+    id: article.id,
+    type: 'essay',
+    image: DEMO_ITEMS.filter(item => item.type === 'essay')[index % 3].image,
+    size: index % 2 ? 'medium' : 'wide',
+    date: (article.date || '').replaceAll('-', '.'),
+    cloud: true,
+  }));
+}
+
+function items() {
+  const cloud = cloudItems();
+  if (!cloud.length) return DEMO_ITEMS;
+  const ids = new Set(cloud.map(item => item.id));
+  return [...cloud, ...DEMO_ITEMS.filter(item => !ids.has(item.id))].slice(0, 8);
+}
 
 export function renderHome() {
-  const articles = store.getArticles();
-  const likes = store.getLikes();
-  const comments = store.getComments();
-  const searchTerm = ''; // 搜索词由事件处理接管
-
+  const allItems = items();
+  const currentFilter = state.filter || 'all';
+  const filtered = currentFilter === 'all' ? allItems : allItems.filter(item => item.type === currentFilter);
   return `
-    <!-- 顶部双列 -->
-    <div class="home-top-row">
-      <div class="card announcement">
-        <div class="announce-title">📢 公告栏</div>
-        <p>欢迎来到我的个人网站，这里记录生活与思考。<br>愿你在这里有所发现。</p>
-      </div>
-      <div class="card search-box">
-        <input type="text" id="search-input" placeholder="🔍 搜索文章..." autocomplete="off">
-        <div class="search-hint" id="search-hint"></div>
-      </div>
-    </div>
+    <div class="archive-shell">
+      <aside class="identity-panel" aria-label="Identity">
+        <h2 class="identity-title">OPEN</h2>
+        <div class="identity-avatar"><img src="assets/avatar/avatar-replace-later.png" alt="匿名头像占位图"></div>
+        <div>
+          <p class="identity-statement">记录文字<br>保存瞬间</p>
+          <p class="identity-note">生活是自己的感受，<br>而不是别人的看法。</p>
+        </div>
+        <nav class="identity-nav" aria-label="Archive 分类">
+          <button class="${currentFilter === 'all' ? 'active' : ''}" type="button" data-filter="all">${icon('archive')}<span>Archive</span></button>
+          <button class="${currentFilter === 'essay' ? 'active' : ''}" type="button" data-filter="essay">${icon('file-text')}<span>Notes</span></button>
+          <button type="button" data-page="photos">${icon('image')}<span>Photos</span></button>
+          <button type="button" data-page="about">${icon('user-round')}<span>About</span></button>
+        </nav>
+        <footer class="identity-footer">
+          <div class="social-row">
+            <a class="social-link" href="https://github.com/" target="_blank" rel="noreferrer" aria-label="GitHub">${icon('github')}</a>
+            <a class="social-link" href="#" aria-label="Instagram">${icon('instagram')}</a>
+            <a class="social-link" href="mailto:hello@example.com" aria-label="Email">${icon('mail')}</a>
+            <a class="social-link" href="#" aria-label="RSS">${icon('rss')}</a>
+          </div>
+          <p class="copyright">© 2026 OPEN<br>Made with care</p>
+        </footer>
+      </aside>
 
-    <!-- 导航卡片 -->
-    <div class="card nav-card">
-      ${renderNavRows()}
-    </div>
+      <section class="archive-main" aria-labelledby="archive-title">
+        <header class="archive-heading">
+          <h1 id="archive-title">${currentFilter === 'essay' ? 'Notes' : 'Archive'}</h1>
+          <span class="archive-count">${filtered.length}</span>
+          <div class="archive-actions"><button class="view-all" type="button" data-filter="all">View all →</button></div>
+        </header>
+        <div class="archive-grid" id="archive-grid">
+          ${filtered.map(renderCard).join('')}
+        </div>
+      </section>
 
-    <!-- 个人信息 -->
-    <div class="card profile-card">
-      <img class="avatar"
-           src="img/avatar.png"
-           alt="头像"
-           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-           loading="lazy">
-      <div class="avatar-placeholder" style="display:none">👤</div>
-      <div class="profile-name">ForestChen</div>
-      <div class="profile-bio">"抱紧我 再抱紧我"</div>
-      <div class="profile-count">共发表了 <strong>${articles.length}</strong> 篇文章</div>
+      <aside class="others-column" aria-label="Others">
+        ${renderRecent(allItems)}
+        ${renderStats(allItems)}
+        ${renderCalendar()}
+        ${renderMusic()}
+      </aside>
     </div>
-
-    <!-- 文章列表 -->
-    <div id="article-list">
-      ${articles.length === 0
-        ? '<div class="empty-state">还没有文章，敬请期待</div>'
-        : articles
-            .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
-            .map(a => renderArticleCard(a, likes, comments))
-            .join('')}
-    </div>
-  `;
+    <div class="search-overlay" id="search-overlay" hidden>
+      <label class="sr-only" for="archive-search">搜索 Archive</label>
+      <input id="archive-search" type="search" placeholder="搜索标题、地点或日期" autocomplete="off">
+    </div>`;
 }
 
-function renderNavRows() {
-  const pages = [
-    { page: 'home',  icon: '🏠', label: '首页' },
-    { page: 'home',  icon: '📄', label: '文章列表' },
-    { page: 'photos', icon: '🖼️', label: '照片墙' },
-  ];
-
-  return pages.map(p => `
-    <div class="nav-row active" data-nav="${p.page}">
-      <span class="nav-icon">${p.icon}</span> ${p.label}
-    </div>
-  `).join('');
+function renderCard(item) {
+  return `<article class="archive-card ${item.size || 'medium'}" tabindex="0" data-id="${escapeHtml(item.id)}" data-type="${item.type}" data-search="${escapeHtml(`${item.title} ${item.place || ''} ${item.date || ''}`.toLowerCase())}">
+    <div class="archive-media"><img src="${item.image}" alt="${escapeHtml(item.title)}" loading="lazy"></div>
+    <span class="archive-kind ${item.type}">${item.type}</span>
+    <div class="archive-card-text"><h2>${escapeHtml(item.title)}</h2><div class="archive-meta">${item.place ? `${escapeHtml(item.place)} · ` : ''}${escapeHtml(item.date || '')}</div></div>
+  </article>`;
 }
 
-function renderArticleCard(article, likes, comments) {
-  const likeCount = likes[article.id] || 0;
-  const commentCount = (comments[article.id] || []).length;
-  const summary = (article.summary || article.content || '')
-    .replace(/[#*`>\[\]!()|~]/g, '')
-    .replace(/\n/g, ' ')
-    .substring(0, 100);
-
-  return `
-    <div class="card article-item animate-in" data-article-id="${article.id}">
-      <div class="article-title">${escapeHtml(article.title)}</div>
-      <div class="article-meta">
-        <span class="article-date">${article.date || ''}</span>
-      </div>
-      <div class="article-summary">${escapeHtml(summary)}${summary.length >= 100 ? '...' : ''}</div>
-      <div class="article-stats">
-        <span>❤️ ${likeCount}</span>
-        <span>💬 ${commentCount}</span>
-      </div>
-    </div>
-  `;
+function renderRecent(allItems) {
+  return `<section class="side-widget"><h2>Recent</h2><div class="recent-list">${allItems.slice(0, 4).map(item => `<div class="recent-item"><span class="recent-date">${item.date.slice(5)}</span><span class="recent-dot"></span><span class="recent-copy">发布${item.type === 'essay' ? '文章' : '摄影集'}<br>《${escapeHtml(item.title)}》</span></div>`).join('')}</div><button class="more-link view-all" type="button" data-filter="all">More →</button></section>`;
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
+function renderStats(allItems) {
+  const essayCount = allItems.filter(item => item.type === 'essay').length;
+  const photoCount = allItems.filter(item => item.type === 'photo').length;
+  return `<section class="side-widget"><h2>Statistics</h2><div class="stat-list"><div class="stat-row"><span class="stat-icon">${icon('file-text')}</span><span>文章</span><strong class="stat-value">${essayCount}</strong></div><div class="stat-row"><span class="stat-icon">${icon('images')}</span><span>摄影集</span><strong class="stat-value">${photoCount}</strong></div><div class="stat-row"><span class="stat-icon">${icon('clock-3')}</span><span>记录天数</span><strong class="stat-value">542</strong></div></div></section>`;
 }
 
-/* ---- 事件绑定（由 router 在渲染后调用） ---- */
+function renderCalendar() {
+  const blanks = Array.from({ length: 5 }, () => '<span></span>').join('');
+  const days = Array.from({ length: 31 }, (_, index) => `<span class="${index + 1 === 6 ? 'active' : ''}">${index + 1}</span>`).join('');
+  return `<section class="side-widget"><div class="calendar-head">August 2026</div><div class="calendar-grid"><span class="weekday">M</span><span class="weekday">T</span><span class="weekday">W</span><span class="weekday">T</span><span class="weekday">F</span><span class="weekday">S</span><span class="weekday">S</span>${blanks}${days}</div></section>`;
+}
+
+function renderMusic() {
+  return `<section class="side-widget music-widget"><h2>Music</h2><div class="music-row"><img class="music-cover" src="assets/music/music-cover.png" alt="夜海灯塔音乐封面占位图"><div><p class="music-title">Night Train</p><p class="music-artist">Audio pending</p><div class="music-controls"><button type="button" disabled aria-label="上一首">${icon('skip-back')}</button><button class="play" type="button" disabled aria-label="音源暂不可用">${icon('play')}</button><button type="button" disabled aria-label="下一首">${icon('skip-forward')}</button></div></div></div><p class="music-unavailable">音源将在获得授权后启用</p></section>`;
+}
+
 export function bindHomeEvents() {
-  /* 搜索过滤 */
-  const input = document.getElementById('search-input');
-  const hint = document.getElementById('search-hint');
-  if (input) {
-    input.addEventListener('input', () => {
-      const term = input.value.toLowerCase().trim();
-      const articles = store.getArticles();
-      let visible = 0;
-
-      document.querySelectorAll('.article-item').forEach(el => {
-        const title = (el.querySelector('.article-title')?.textContent || '').toLowerCase();
-        const summary = (el.querySelector('.article-summary')?.textContent || '').toLowerCase();
-        const match = !term || title.includes(term) || summary.includes(term);
-        el.style.display = match ? '' : 'none';
-        if (match) visible++;
-      });
-
-      /* 空状态提示 */
-      const list = document.getElementById('article-list');
-      const existingEmpty = list?.querySelector('.empty-state');
-      if (term && visible === 0 && articles.length > 0) {
-        if (!existingEmpty) {
-          const div = document.createElement('div');
-          div.className = 'empty-state';
-          div.textContent = '没有匹配的文章';
-          list?.appendChild(div);
-        }
-      } else if (existingEmpty && existingEmpty.textContent === '没有匹配的文章') {
-        existingEmpty.remove();
-      }
-
-      if (hint) hint.textContent = term ? `找到 ${visible} 篇` : '';
-    });
-  }
-
-  /* 文章卡片点击 */
-  document.querySelectorAll('.article-item').forEach(el => {
-    el.addEventListener('click', () => {
-      const id = el.dataset.articleId;
-      if (id) navigate('article', id);
-    });
+  const applyFilter = filter => { state.filter = filter; navigate('home', filter); };
+  document.querySelectorAll('[data-filter]').forEach(button => button.addEventListener('click', () => applyFilter(button.dataset.filter)));
+  document.querySelectorAll('.identity-nav [data-page]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.page)));
+  document.querySelectorAll('.archive-card').forEach(card => {
+    const open = () => navigate(card.dataset.type === 'photo' ? 'photos' : 'article', card.dataset.id);
+    card.addEventListener('click', open);
+    card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); open(); } });
   });
 
-  /* 导航卡片点击 */
-  document.querySelectorAll('.nav-card .nav-row').forEach(el => {
-    el.addEventListener('click', () => {
-      const page = el.dataset.nav;
-      if (page) navigate(page);
-    });
+  const overlay = document.getElementById('search-overlay');
+  const input = document.getElementById('archive-search');
+  if (activeSearchHandler) window.removeEventListener('open:search', activeSearchHandler);
+  activeSearchHandler = () => {
+    if (!overlay) return;
+    overlay.hidden = !overlay.hidden;
+    if (!overlay.hidden) input?.focus();
+  };
+  window.addEventListener('open:search', activeSearchHandler);
+  input?.addEventListener('input', () => {
+    const term = input.value.trim().toLowerCase();
+    document.querySelectorAll('.archive-card').forEach(card => { card.hidden = term && !card.dataset.search.includes(term); });
   });
+}
+
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]);
 }

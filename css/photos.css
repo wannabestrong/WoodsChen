@@ -1,79 +1,27 @@
-/* =========================================
-   photos.css — 照片墙 + 灯箱样式
-   ========================================= */
+.photo-story { width: min(960px, 100%); margin: 0 auto; padding: 4px 0 34px; }
+.photo-story .detail-back { margin-bottom: 12px; }
+.photo-story-header { margin-bottom: 16px; }
+.photo-story-header .detail-type { display: block; margin-bottom: 8px; color: var(--blue); font-size: 11px; }
+.photo-story-title { margin: 0 0 4px; font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 34px; font-weight: 400; }
+.photo-story-meta { color: var(--text-muted); font-size: 11px; }
+.photo-cover { width: 100%; aspect-ratio: 16 / 7; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); }
+.photo-cover img, .photo-frame img { width: 100%; height: 100%; object-fit: cover; }
+.story-section { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.story-section h2 { margin: 0 0 14px; font-size: 12px; font-weight: 500; }
+.photo-sequence { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; align-items: stretch; }
+.photo-frame { overflow: hidden; border: 1px solid var(--line); border-radius: 4px; background: var(--surface); cursor: zoom-in; }
+.photo-frame.landscape { aspect-ratio: 3 / 1.05; }
+.photo-frame.portrait { aspect-ratio: 1.02 / 1; }
+.photo-frame.portrait img { object-position: center 58%; }
+.creation-note { max-width: 680px; color: var(--text-muted); line-height: 1.9; }
+.lightbox-overlay { position: fixed; z-index: 220; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(2, 3, 5, 0.94); cursor: zoom-out; }
+.lightbox-overlay img { max-width: 94vw; max-height: 92vh; object-fit: contain; border-radius: 4px; }
 
-.photo-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-}
-
-@media (max-width: 1024px) {
-  .photo-grid {
-    grid-template-columns: repeat(3, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .photo-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-}
-
-.photo-item {
-  aspect-ratio: 1;
-  overflow: hidden;
-  border-radius: var(--radius-card);
-  background: var(--accent-light);
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.photo-item:hover {
-  transform: scale(1.03);
-  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-}
-
-.photo-item img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-.photo-item .photo-placeholder {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  color: var(--text-muted);
-}
-
-/* ---- 灯箱 ---- */
-.lightbox-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 200;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.lightbox-overlay img {
-  max-width: 90vw;
-  max-height: 90vh;
-  border-radius: 8px;
-  object-fit: contain;
-  cursor: default;
+@media (max-width: 760px) {
+  .photo-story { padding-top: 8px; }
+  .photo-story-title { font-size: 32px; }
+  .photo-cover { aspect-ratio: 4 / 3; }
+  .photo-sequence { grid-template-columns: 1fr; }
+  .photo-frame.landscape { aspect-ratio: 3 / 2; }
+  .photo-frame.portrait { width: min(78%, 340px); aspect-ratio: 2 / 3; }
 }

@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "reference_lock_version": "v2",
+  "source_strategy_locked": true,
+  "review_scope": "all_sections",
+  "viewports": {
+    "desktop": { "width": 1440, "height": 900 },
+    "ultrawide": { "width": 2200, "height": 1200 },
+    "mobile": { "width": 390, "height": 844 }
+  },
+  "fidelity_ledger": "docs/fidelity-ledger.md",
+  "fresh_review": "docs/fresh-review.md",
+  "fresh_review_mode": "self-blind",
+  "final_status": "pass",
+  "sections": [
+    {
+      "id": "archive-home",
+      "reference": { "path": "references/locked/v2/01-archive-home.png", "sha256": "de488dc1b09c00bab82fa28414a3931a0d8387bc89c735e6aaa3f6d99955685f" },
+      "render_contract": "docs/restoration-plan.md",
+      "topology": { "kind": "section-specific", "shared_with": [], "reason": "Identity, Archive grid and Others rail use a page-specific three-column coordinate system." },
+      "captures": { "desktop": "qa/desktop/01-archive-home.png", "ultrawide": "qa/ultrawide/01-archive-home.png", "mobile": "qa/mobile/01-archive-home.png" },
+      "gates": { "visual_meaning": "pass", "hierarchy": "pass", "personal_evidence": "pass", "composition": "pass", "typography": "pass", "asset_crop": "pass", "overlap": "pass", "responsive": "pass", "reference_fidelity": "pass" },
+      "status": "pass"
+    },
+    {
+      "id": "essay-detail",
+      "reference": { "path": "references/locked/v2/02-essay-detail.png", "sha256": "5682107f8a73a10962d7c23014b64fe4b7edf5714b509a8521e633d7bebaa06f" },
+      "render_contract": "docs/restoration-plan.md",
+      "topology": { "kind": "section-specific", "shared_with": [], "reason": "Text-led editorial reading topology." },
+      "captures": { "desktop": "qa/desktop/02-essay-detail.png", "ultrawide": "qa/ultrawide/02-essay-detail.png", "mobile": "qa/mobile/02-essay-detail.png" },
+      "gates": { "visual_meaning": "pass", "hierarchy": "pass", "personal_evidence": "pass", "composition": "pass", "typography": "pass", "asset_crop": "pass", "overlap": "pass", "responsive": "pass", "reference_fidelity": "pass" },
+      "status": "pass"
+    },
+    {
+      "id": "photo-story",
+      "reference": { "path": "references/locked/v2/03-photo-story.png", "sha256": "f7392bf013a4ed58d53a5c1e2da76f6508808ea66518de3306f03e4c184b29fa" },
+      "render_contract": "docs/restoration-plan.md",
+      "topology": { "kind": "section-specific", "shared_with": [], "reason": "Image-led photo-book topology." },
+      "captures": { "desktop": "qa/desktop/03-photo-story.png", "ultrawide": "qa/ultrawide/03-photo-story.png", "mobile": "qa/mobile/03-photo-story.png" },
+      "gates": { "visual_meaning": "pass", "hierarchy": "pass", "personal_evidence": "pass", "composition": "pass", "typography": "pass", "asset_crop": "pass", "overlap": "pass", "responsive": "pass", "reference_fidelity": "pass" },
+      "status": "pass"
+    },
+    {
+      "id": "about",
+      "reference": { "path": "references/locked/v2/04-about.png", "sha256": "9a06d1f43e478c8768e4732cfe497b6d187e2e7309528c9dc74569a0916bc183" },
+      "render_contract": "docs/restoration-plan.md",
+      "topology": { "kind": "section-specific", "shared_with": [], "reason": "Identity-led frontispiece topology." },
+      "captures": { "desktop": "qa/desktop/04-about.png", "ultrawide": "qa/ultrawide/04-about.png", "mobile": "qa/mobile/04-about.png" },
+      "gates": { "visual_meaning": "pass", "hierarchy": "pass", "personal_evidence": "pass", "composition": "pass", "typography": "pass", "asset_crop": "pass", "overlap": "pass", "responsive": "pass", "reference_fidelity": "pass" },
+      "status": "pass"
+    }
+  ]
+}

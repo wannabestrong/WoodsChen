@@ -2,15 +2,17 @@
    app.js — 主入口：初始化 + 全局事件 + 底部翻页箭头
    ========================================= */
 
-import { state, render, arrowNext, arrowPrev } from './router.js';
-import { initSupabase } from './supabase.js';
+import { state, render, renderFromLocation, arrowNext, arrowPrev } from './router.js?v=5';
+import { initSupabase } from './supabase.js?v=5';
 
 /* ---- 初始化 ---- */
 document.addEventListener('DOMContentLoaded', () => {
-  render();
+  renderFromLocation();
   setupScrollArrow();
   initSupabase();
 });
+
+window.addEventListener('popstate', renderFromLocation);
 
 /* ---- 云端文章更新后重新渲染 ---- */
 window.addEventListener('fc:articles-updated', () => {
@@ -32,15 +34,10 @@ function setupScrollArrow() {
     }
   });
 
-  /* 移动端双击切换 */
-  let tapTimer = null;
-  arrow.addEventListener('click', () => {
-    if (tapTimer) {
-      clearTimeout(tapTimer);
-      tapTimer = null;
-      arrowNext();
-    } else {
-      tapTimer = setTimeout(() => { tapTimer = null; }, 300);
-    }
+  arrow.addEventListener('click', arrowNext);
+
+  arrow.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowDown') arrowNext();
+    if (event.key === 'ArrowUp') arrowPrev();
   });
 }

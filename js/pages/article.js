@@ -1,174 +1,49 @@
-/* =========================================
-   article.js — 文章详情 + 点赞 + 评论
-   ========================================= */
+import { store } from '../store.js?v=5';
+import { navigate } from '../router.js?v=5';
+import { renderMarkdown } from '../utils/markdown.js?v=5';
+import { icon } from '../components/nav.js?v=5';
 
-import { store } from '../store.js';
-import { navigate } from '../router.js';
-import { renderMarkdown } from '../utils/markdown.js';
+const DEMO_ESSAYS = {
+  loneliness: { title: '关于孤独的十个片段', date: '2026.08.01' },
+  'future-self': { title: '写给未来的自己', date: '2026.07.25' },
+  'unfinished-thoughts': { title: '一些不成文的想法', date: '2026.07.12' },
+};
+
+const PLACEHOLDER = `有些感受并不急着抵达结论。它们停留在日常的缝隙里，随着光线、天气和一次短暂的停顿，慢慢显出轮廓。
+
+这里暂时使用排版占位内容。正式发布时，正文将从 Supabase 中读取，并保留原有 Markdown 结构、段落节奏和图片位置。
+
+记录并不是为了给每件事命名，而是保存那些尚未完成的理解。`;
 
 export function renderArticle(articleId) {
   const articles = store.getArticles();
-  const article = articles.find(a => a.id === articleId);
+  const cloudArticle = articles.find(article => String(article.id) === String(articleId));
+  const demo = DEMO_ESSAYS[articleId];
+  const article = cloudArticle || demo || { title: '文章标题', date: '2026.08.01' };
+  const body = cloudArticle?.content || PLACEHOLDER;
 
-  if (!article) {
-    return `
-      <div class="card article-page">
-        <p style="text-align:center;color:var(--text-muted);">文章未找到</p>
-        <p style="text-align:center;">
-          <span class="back-link" id="back-to-home">← 返回首页</span>
-        </p>
-      </div>
-    `;
-  }
-
-  const likes = store.getLikes();
-  const likedBy = store.getLikedBy();
-  const comments = store.getComments();
-
-  const likeCount = likes[articleId] || 0;
-  const isLiked = !!likedBy[articleId];
-  const articleComments = comments[articleId] || [];
-
-  return `
-    <div class="card article-page">
-      <span class="back-link" id="back-to-home">← 返回首页</span>
-      <h2 style="margin-bottom:4px;">${escapeHtml(article.title)}</h2>
-      <div style="font-size:13px;color:var(--text-muted);margin-bottom:20px;">${article.date || ''}</div>
-      <div class="markdown-body">
-        ${renderMarkdown(article.content || '*（无内容）*')}
-      </div>
-    </div>
-
-    <!-- 点赞 -->
-    <div class="card like-section">
-      <button class="like-btn${isLiked ? ' liked' : ''}" id="like-btn" data-article-id="${articleId}">
-        <span id="like-icon">${isLiked ? '❤️' : '🤍'}</span> 点赞
-      </button>
-      <span class="like-count" id="like-count">${likeCount} 次点赞</span>
-    </div>
-
-    <!-- 评论 -->
-    <div class="card comment-section">
-      <h3>💬 评论</h3>
-      <div class="comment-form">
-        <input type="text" id="comment-nickname" placeholder="昵称 *" maxlength="30" autocomplete="off">
-        <div class="field-error" id="comment-nickname-error">请输入昵称</div>
-        <textarea id="comment-content" placeholder="写下你的想法..." maxlength="500"></textarea>
-        <div class="field-error" id="comment-content-error">请输入评论内容</div>
-        <button class="btn" id="comment-submit" data-article-id="${articleId}">提交评论</button>
-      </div>
-      <div id="comment-list">
-        ${articleComments.length === 0
-          ? '<p style="text-align:center;color:var(--text-muted);font-size:14px;">暂无评论，来说点什么吧</p>'
-          : articleComments.map(c => `
-              <div class="comment-item">
-                <div class="comment-header">
-                  <span class="comment-nickname">${escapeHtml(c.nickname)}</span>
-                  <span class="comment-date">${c.date || ''}</span>
-                </div>
-                <div class="comment-text">${escapeHtml(c.content)}</div>
-              </div>
-            `).join('')}
-      </div>
-    </div>
-  `;
+  return `<article class="detail-page">
+    <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回归档</span></button>
+    <header>
+      <div class="detail-meta"><span class="detail-type">Essay</span><span>｜</span><time>${escapeHtml((article.date || '').replaceAll('-', '.'))}</time></div>
+      <h1 class="detail-title">${escapeHtml(article.title)}</h1>
+    </header>
+    <hr class="detail-rule">
+    <div class="markdown-body">${renderMarkdown(body)}</div>
+    <figure class="article-image"><img src="assets/archive/rain-city-cover.png" alt="雨夜城市街道"></figure>
+    <p class="article-caption">生成的视觉占位素材，待真实作品替换。</p>
+    <nav class="detail-pagination" aria-label="文章导航">
+      <button type="button" data-open="mountain-lake"><small>‹ 上一篇</small>山与湖的对话</button>
+      <button class="archive-return" type="button" data-home>${icon('layout-grid')}<span>回到归档</span></button>
+      <button class="next" type="button" data-open="future-self"><small>下一篇 ›</small>写给未来的自己</button>
+    </nav>
+  </article>`;
 }
 
-function escapeHtml(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
-/* ---- 事件绑定 ---- */
 export function bindArticleEvents() {
-  /* 返回首页 */
-  const backBtn = document.getElementById('back-to-home');
-  if (backBtn) {
-    backBtn.addEventListener('click', () => navigate('home'));
-  }
-
-  /* 点赞 */
-  const likeBtn = document.getElementById('like-btn');
-  if (likeBtn) {
-    likeBtn.addEventListener('click', () => {
-      const articleId = likeBtn.dataset.articleId;
-      const likes = store.getLikes();
-      const likedBy = store.getLikedBy();
-
-      if (likedBy[articleId]) {
-        /* 取消点赞 */
-        likedBy[articleId] = false;
-        likes[articleId] = Math.max(0, (likes[articleId] || 0) - 1);
-        likeBtn.classList.remove('liked');
-        document.getElementById('like-icon').textContent = '🤍';
-      } else {
-        /* 点赞 */
-        likedBy[articleId] = true;
-        likes[articleId] = (likes[articleId] || 0) + 1;
-        likeBtn.classList.add('liked');
-        document.getElementById('like-icon').textContent = '❤️';
-      }
-
-      store.setLikes(likes);
-      store.setLikedBy(likedBy);
-      document.getElementById('like-count').textContent = `${likes[articleId]} 次点赞`;
-    });
-  }
-
-  /* 评论提交 */
-  const submitBtn = document.getElementById('comment-submit');
-  if (submitBtn) {
-    submitBtn.addEventListener('click', () => {
-      const articleId = submitBtn.dataset.articleId;
-      const nickname = document.getElementById('comment-nickname').value.trim();
-      const content = document.getElementById('comment-content').value.trim();
-
-      /* 验证 */
-      let valid = true;
-      document.getElementById('comment-nickname-error').style.display = 'none';
-      document.getElementById('comment-content-error').style.display = 'none';
-
-      if (!nickname) {
-        document.getElementById('comment-nickname-error').style.display = '';
-        valid = false;
-      }
-      if (!content) {
-        document.getElementById('comment-content-error').style.display = '';
-        valid = false;
-      }
-      if (!valid) return;
-
-      /* 保存 */
-      const comments = store.getComments();
-      if (!comments[articleId]) comments[articleId] = [];
-      comments[articleId].push({
-        nickname,
-        content,
-        date: new Date().toLocaleString('zh-CN'),
-      });
-      store.setComments(comments);
-
-      /* 更新列表 */
-      const list = document.getElementById('comment-list');
-      const newComment = comments[articleId].slice(-1)[0];
-      const emptyMsg = list.querySelector('p');
-      if (emptyMsg) emptyMsg.remove();
-
-      const item = document.createElement('div');
-      item.className = 'comment-item';
-      item.innerHTML = `
-        <div class="comment-header">
-          <span class="comment-nickname">${escapeHtml(newComment.nickname)}</span>
-          <span class="comment-date">${newComment.date}</span>
-        </div>
-        <div class="comment-text">${escapeHtml(newComment.content)}</div>
-      `;
-      list.insertBefore(item, list.firstChild);
-
-      /* 清空表单 */
-      document.getElementById('comment-nickname').value = '';
-      document.getElementById('comment-content').value = '';
-    });
-  }
+  document.getElementById('back-to-home')?.addEventListener('click', () => navigate('home'));
+  document.querySelector('[data-home]')?.addEventListener('click', () => navigate('home'));
+  document.querySelectorAll('[data-open]').forEach(button => button.addEventListener('click', () => navigate('article', button.dataset.open)));
 }
+
+function escapeHtml(value = '') { return String(value).replace(/[&<>"]/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[char]); }

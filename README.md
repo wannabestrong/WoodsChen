@@ -1,52 +1,65 @@
-# ForestChen 个人网站
+# OPEN
 
-基于原生 HTML + CSS + JavaScript 的纯静态个人网站，托管于 GitHub Pages。
+OPEN 是一个暗色编辑风格的个人文学与摄影档案网站，使用原生 HTML、CSS 和 JavaScript 构建，无需打包。文章由 Supabase 提供公开只读数据，摄影作品与界面素材随静态站点部署。
 
-## 文件结构
+## 功能
 
-```
-site/
-├── index.html          ← 入口页面
-├── css/                ← 样式文件（按页面拆分）
-│   ├── global.css      ← 全局变量、重置、导航、箭头
-│   ├── home.css        ← 首页
-│   ├── article.css     ← 文章详情
-│   └── photos.css      ← 照片墙 + 灯箱
-├── js/
-│   ├── app.js          ← 入口 + 底部箭头 + 云端同步初始化
-│   ├── router.js       ← SPA 路由 + 页面调度
-│   ├── store.js        ← localStorage 封装（本地缓存）
-│   ├── supabase.js     ← 文章云端同步（Supabase）
-│   ├── pages/          ← 页面渲染 + 事件
-│   ├── components/     ← 可复用组件
-│   └── utils/          ← 工具函数
-├── img/
-│   └── avatar.png      ← 你的头像
-└── README.md
+- Archive、Notes、Photos、About 四个视图
+- Supabase 云端文章与 Markdown 正文
+- 静态内容兜底，云端暂时不可用时网站仍可浏览
+- Archive 搜索与文章筛选
+- 摄影故事、图片灯箱和 Escape 关闭
+- 受控滚轮翻页，不拦截普通页面滚动
+- 桌面、超宽屏和移动端响应式布局
+- Music 保留为等待合法音源的禁用占位状态
+
+## 本地预览
+
+项目依赖 ES module 和远程 CDN，不建议直接双击 `index.html`。在项目根目录启动静态服务器：
+
+```powershell
+python -m http.server 4173
 ```
 
-## 如何替换头像
+然后访问：
 
-将你的头像图片重命名为 `avatar.png`，放入 `site/img/` 目录覆盖原文件即可。
+```text
+http://127.0.0.1:4173/#/archive
+```
 
-推荐图片尺寸：**200×200 像素或更大**的方形图片。支持 PNG / JPG 格式。
+## 目录结构
 
-## 配置文章云端同步（Supabase）
+```text
+.
+|-- index.html                 # 网站入口
+|-- assets/                    # 头像、Archive、摄影和音乐封面素材
+|-- css/                       # 全局及各页面样式
+|-- js/
+|   |-- app.js                 # 初始化、滚轮翻页
+|   |-- router.js              # Hash 路由
+|   |-- store.js               # 文章本地缓存
+|   |-- supabase.js            # Supabase 读取和发布接口
+|   |-- components/            # 导航等共享组件
+|   `-- pages/                 # Archive、文章、摄影、About 页面
+|-- docs/                      # 设计、素材和验收记录
+|-- references/                # 锁定参考图
+|-- qa/                        # 多视口验收截图
+`-- 工作手册.md                 # 网站内容维护指南
+```
 
-文章存储在云端，任意浏览器/设备都能看到同一份内容。
+## Supabase
 
-### 1. 创建 Supabase 项目
+当前站点从 `public.articles` 读取以下字段：
 
-1. 打开 [supabase.com](https://supabase.com)，注册并创建项目（免费档足够）
-2. 进入项目 → **Settings → API**，复制 **Project URL** 和 **anon public key**
+| 字段 | 类型 | 说明 |
+| --- | --- | --- |
+| `id` | `text` | 唯一 ID，推荐使用英文短横线，例如 `night-walk` |
+| `title` | `text` | 文章标题 |
+| `date` | `text` | `YYYY-MM-DD` |
+| `summary` | `text` | 摘要，可为空 |
+| `content` | `text` | Markdown 正文 |
 
-### 2. 创建登录账号（仅你可登录发布）
-
-进入项目 → **Authentication → Users → Add user**，创建一个你自己的账号（邮箱 + 密码），后续发布文章用这个账号登录。
-
-### 3. 建表
-
-进入项目 → **SQL Editor**，执行：
+推荐的表与 RLS：
 
 ```sql
 create table if not exists public.articles (
@@ -60,107 +73,52 @@ create table if not exists public.articles (
 
 alter table public.articles enable row level security;
 
--- 任何人可阅读文章
-create policy "公开可读文章" on public.articles
-  for select using (true);
+create policy "public can read articles"
+on public.articles for select
+using (true);
 
--- 仅登录用户可发布文章
-create policy "仅登录者可发布文章" on public.articles
-  for insert to authenticated with check (true);
+create policy "authenticated users can insert articles"
+on public.articles for insert
+to authenticated
+with check (true);
 
--- 仅登录用户可删除文章
-create policy "仅登录者可删除文章" on public.articles
-  for delete to authenticated using (true);
+create policy "authenticated users can delete articles"
+on public.articles for delete
+to authenticated
+using (true);
 ```
 
-> 如果你之前执行过旧的「公开可发布文章」策略，请先删掉它：
-> ```sql
-> drop policy if exists "公开可发布文章" on public.articles;
-> ```
+前端只能使用 Supabase Project URL 和 publishable/anon key。不要把 service role key、登录密码或其他私密密钥提交到仓库。
 
-### 4. 填写密钥
+完整的文章发布、照片更新、个人信息修改和部署步骤见 [工作手册.md](工作手册.md)。
 
-编辑 `site/js/supabase.js`，替换两处占位符：
+## 部署
 
-```js
-const SUPABASE_URL = 'https://xxxx.supabase.co';  // 你的 Project URL
-const SUPABASE_ANON_KEY = 'eyJhbGci...';          // 你的 anon public key
+这是根目录即可发布的静态站点，可部署到 GitHub Pages 或 Vercel。
+
+GitHub Pages：
+
+1. 将仓库推送到 GitHub。
+2. 打开仓库的 `Settings > Pages`。
+3. Source 选择 `Deploy from a branch`。
+4. 选择 `main` 和 `/ (root)`。
+5. 保存并等待部署完成。
+
+Hash 路由使用 `#/archive`、`#/notes`、`#/photos`、`#/about` 和 `#/essay/<id>`，刷新详情页时不需要服务器重写规则。
+
+## 内容边界
+
+- 云端文章：首页封面暂时从三张 essay 占位图中轮换，Supabase 当前没有独立 `cover_url` 字段。
+- 摄影内容：目前写在 `js/pages/home.js` 和 `js/pages/photos.js`，修改后需要重新部署。
+- 头像、About 文案和部分图片仍是已批准的 `replace-later` 内容。
+- Music 没有音源文件，获得合法 MP3 或可跨域播放的 HTTPS 直链后再启用。
+
+## 验证
+
+```powershell
+node --check js/app.js
+node --check js/router.js
+python D:\identity-skill-main\identity-skill-main\scripts\verify_identity_run.py D:\WoodsChen
 ```
 
-> 说明：URL 和 anon key 是公开的（Supabase 客户端专用），可直接写在前端。
-> 真正的权限由 RLS 策略控制：任何人可读，但只有登录后的你才能发布/删除。
-
-## 如何发布文章
-
-打开浏览器，访问你的网站，按 **F12** 打开控制台，先登录（只需一次，之后浏览器会自动保持登录）：
-
-```js
-await ForestChenAPI.signIn('你的邮箱', '你的密码');
-```
-
-然后发布：
-
-```js
-await ForestChenAPI.publishArticle({
-  title: '文章标题',
-  date: '2026-07-27',
-  summary: '简短摘要（可选）',
-  content: '# 正文\n\n支持 **Markdown** 格式。\n\n- 列表\n- 列表\n\n> 引用'
-});
-```
-
-文章会自动同步到云端，并在首页显示。其它浏览器/设备刷新后即可看到。
-
-删除文章：
-
-```js
-await ForestChenAPI.deleteArticle('文章id');  // id 可从下方本地缓存查看
-```
-
-退出登录：
-
-```js
-await ForestChenAPI.signOut();
-```
-
-- Markdown 支持：标题、加粗、斜体、图片 `![alt](url)`、代码块、引用、列表、表格、链接等。
-- 本地缓存：`fc_articles`（localStorage）是离线的文章缓存，云端优先。
-
-## 如何添加照片
-
-编辑 `site/js/pages/photos.js`，找到 `PHOTO_URLS` 数组：
-
-```js
-const PHOTO_URLS = [
-  'img/photos/photo01.jpg',
-  'img/photos/photo02.jpg',
-  'https://example.com/remote-photo.jpg',  // 也支持远程 URL
-];
-```
-
-将你的照片放入 `site/img/photos/` 目录，然后在这里添加路径。保存后刷新页面即可看到。
-
-## 如何部署
-
-### 部署到 GitHub Pages
-
-1. 将 `site/` 目录内的**全部文件**推送到你的 GitHub 仓库
-2. 打开仓库 → **Settings** → **Pages**
-3. **Source** 选择 `Deploy from a branch`
-4. **Branch** 选择 `main`，文件夹选 `/ (root)`（如果 repo 根目录就是 site 内容）或 `/site`
-5. 点击 Save，等待几分钟即可访问
-
-### 绑定自定义域名
-
-1. 在 Settings → Pages → **Custom domain** 中输入 `forestchen.com`
-2. 在你的域名 DNS 中添加一条 **CNAME 记录**，指向 `<你的用户名>.github.io`
-3. 勾选 **Enforce HTTPS**（可能需要等证书自动签发）
-
-## 技术说明
-
-- 纯静态，零构建，零依赖（Markdown 渲染使用 marked.js CDN，云端同步使用 Supabase CDN）
-- SPA 单页应用，所有页面切换无刷新
-- 文章存储在 Supabase 云端（任意浏览器/设备同步），localStorage 仅作离线缓存
-- 点赞、评论数据仍存储在浏览器本地
-- 适配手机、平板、桌面
-- 底部箭头：鼠标悬停 + 滚轮切换页面；移动端双击切换
+最终视觉和响应式验收记录位于 `docs/fidelity-ledger.md`、`docs/fresh-review.md` 与 `docs/identity-evidence.json`。

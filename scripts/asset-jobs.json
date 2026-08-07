@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "jobs": [
+    {
+      "id": "future-self-cover",
+      "out": "assets/archive/future-self-cover.png",
+      "size": "1344x1008",
+      "quality": "high",
+      "prompt": "Use case: photorealistic-natural. Asset type: replace-later essay cover photograph. A quiet interior beside a tall window on an overcast morning. A closed book on a simple wooden surface, one restrained green plant, and a long soft window shadow. Intimate low-saturation editorial still-life photography with natural material texture. Book in the lower-left third, plant at the right edge, calm open wall and window light, safe 4:3 crop. Muted morning light; charcoal, soft gray, faded green, and a very small warm paper tone. The book contains no readable text. No cup, laptop, logo, watermark, UI, frame, or border."
+    },
+    {
+      "id": "dusk-tram-cover",
+      "out": "assets/archive/dusk-tram-cover.png",
+      "size": "1344x1008",
+      "quality": "high",
+      "prompt": "Use case: photorealistic-natural. Asset type: replace-later photography cover. An old tram street at dusk after light rain, with dense but quiet city blocks. One tram moving away along rails, small practical streetlights, and soft reflections. Natural low-saturation documentary editorial photography with subtle film grain. Tram centered in the lower middle, rails leading inward, complete tram silhouette in a safe 4:3 crop. Last blue daylight with restrained warm lamps. No readable advertisements or signs, prominent faces, logos, watermark, UI, frame, or border."
+    },
+    {
+      "id": "unfinished-thoughts-cover",
+      "out": "assets/archive/unfinished-thoughts-cover.png",
+      "size": "1344x1008",
+      "quality": "high",
+      "prompt": "Use case: photorealistic-natural. Asset type: replace-later essay cover photograph. A dark wooden desk under a narrow pool of soft evening light. An open notebook, simple pen, and irregular page shadows; the notebook contains only abstract unreadable placeholder bars and squiggles. Intimate low-saturation editorial still-life photography with tactile paper and wood grain. Notebook angled gently through the center, pen near the lower edge, complete object boundaries, safe 4:3 crop. Absolutely no readable handwriting or printed text, coffee cup, logo, watermark, UI, frame, or border."
+    },
+    {
+      "id": "seaside-evening-cover",
+      "out": "assets/archive/seaside-evening-cover.png",
+      "size": "1344x1008",
+      "quality": "high",
+      "prompt": "Use case: photorealistic-natural. Asset type: replace-later photography cover. A quiet coastline at late dusk, distant low mountains, calm sea, one subtle shoreline edge, and faint last light on the horizon. Natural low-saturation landscape editorial photography with fine film grain. Horizontal horizon across the upper third and calm negative water foreground in a safe 4:3 crop. Muted navy, gray-blue, soft charcoal, and a faint dusty-rose horizon. No people, boats, buildings, text, logo, watermark, UI, frame, or border."
+    },
+    {
+      "id": "window-light-cover",
+      "out": "assets/archive/window-light-cover.png",
+      "size": "1536x864",
+      "quality": "high",
+      "prompt": "Use case: photorealistic-natural. Asset type: replace-later photography cover. A plain dark interior wall beside a window near sunset. Soft rectangular window light and the shadow of one small plant cast across realistic imperfect wall texture. Minimal natural editorial photography. Wide 16:9 composition, light shape on the right half, quiet negative space on the left, complete shadow silhouette. Near-black, charcoal gray, muted warm amber, faded green-gray. No furniture cluster, text, logo, watermark, UI, frame, or border."
+    },
+    {
+      "id": "mountain-range-gallery",
+      "out": "assets/archive/mountain-range-gallery.png",
+      "size": "1536x1024",
+      "quality": "high",
+      "prompt": "Use case: photorealistic-natural. Asset type: replace-later photo-story gallery image. A rugged mountain range beside cold dark water beneath layered cloud. A complete snow-streaked ridge, low rocky shore, and calm foreground water. Natural low-saturation landscape documentary photograph with realistic texture. 3:2 landscape, ridge spanning the center, no peak cropped, stable shoreline baseline. Overcast and austere with atmospheric haze. No people, structures, text, logo, watermark, UI, frame, or border."
+    },
+    {
+      "id": "forest-path-gallery",
+      "out": "assets/archive/forest-path-gallery.png",
+      "size": "1024x1536",
+      "quality": "high",
+      "prompt": "Use case: photorealistic-natural. Asset type: replace-later photo-story gallery image. A dense tall evergreen forest after light rain. A narrow natural path leading toward soft misty light, vertical tree trunks, and realistic moss. Natural low-saturation documentary landscape photograph with subtle film grain. 2:3 portrait, path centered and fully visible from the bottom edge inward, canopy and trunk edges safely contained. No people, animals, signs, text, logo, watermark, UI, frame, or border."
+    },
+    {
+      "id": "music-cover",
+      "out": "assets/music/music-cover.png",
+      "size": "1024x1024",
+      "quality": "high",
+      "prompt": "Use case: photorealistic-natural. Asset type: replace-later album-style cover for a personal site music player. A dark sea at night with distant low fog and one small lighthouse or solitary navigation light on a rocky edge, reflected faintly on water. Minimal low-saturation cinematic editorial photograph with subtle film grain. Square composition, lighthouse in the lower-right third, generous dark negative space, strong thumbnail silhouette. No title, artist name, readable text, logo, watermark, UI, frame, or border."
+    }
+  ]
+}
