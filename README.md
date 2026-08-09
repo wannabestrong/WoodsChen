@@ -1,5 +1,13 @@
 # OPEN
 
+## Content backend setup
+
+For the Supabase content backend, run the complete
+`supabase/content-admin.sql` file once in the Supabase SQL Editor. It creates
+the content tables when absent and configures the `open-media` Storage bucket
+with public read plus authenticated write RLS policies. The migration is safe
+to re-run. Do not run the older standalone `articles` SQL below separately.
+
 OPEN 是一个暗色编辑风格的个人文学与摄影档案网站，使用原生 HTML、CSS 和 JavaScript 构建，无需打包。文章由 Supabase 提供公开只读数据，摄影作品与界面素材随静态站点部署。
 
 ## 功能

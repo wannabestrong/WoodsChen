@@ -1,8 +1,25 @@
--- OPEN content admin migration. Run once in Supabase SQL Editor.
+-- OPEN content admin migration. Run this complete file in Supabase SQL Editor.
+-- It is safe to re-run and includes the article table, photo stories, and Storage RLS.
+
+create table if not exists public.articles (
+  id text primary key,
+  title text not null,
+  date text default '',
+  summary text default '',
+  content text default '',
+  cover_url text default '',
+  status text not null default 'published' check (status in ('draft', 'published')),
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
 
 alter table public.articles add column if not exists cover_url text default '';
 alter table public.articles add column if not exists status text default 'published';
 alter table public.articles add column if not exists updated_at timestamptz default now();
+update public.articles set status = 'published' where status is null;
+alter table public.articles alter column status set default 'published';
+alter table public.articles alter column status set not null;
+alter table public.articles enable row level security;
 
 drop policy if exists "公开可读文章" on public.articles;
 drop policy if exists "public can read articles" on public.articles;
@@ -25,12 +42,15 @@ create table if not exists public.photo_stories (
   description text default '',
   cover_url text default '',
   images jsonb default '[]'::jsonb,
-  status text default 'published',
+  status text not null default 'published' check (status in ('draft', 'published')),
   created_at timestamptz default now(),
   updated_at timestamptz default now()
 );
 
 alter table public.photo_stories enable row level security;
+update public.photo_stories set status = 'published' where status is null;
+alter table public.photo_stories alter column status set default 'published';
+alter table public.photo_stories alter column status set not null;
 
 drop policy if exists "public can read published photo stories" on public.photo_stories;
 create policy "public can read published photo stories"
