@@ -1,6 +1,6 @@
-import { store } from '../store.js?v=10';
-import { navigate, state } from '../router.js?v=10';
-import { icon } from '../components/nav.js?v=10';
+import { store } from '../store.js?v=11';
+import { navigate, state } from '../router.js?v=11';
+import { icon } from '../components/nav.js?v=11';
 
 const DEMO_ITEMS = [
   { id: 'rain-city', type: 'photo', title: '雨后的城市', place: 'Shanghai', date: '2026.08.06', image: 'assets/archive/rain-city-cover.png', size: 'wide' },

@@ -1,6 +1,6 @@
-import { navigate } from '../router.js?v=10';
-import { icon } from '../components/nav.js?v=10';
-import { store } from '../store.js?v=10';
+import { navigate, state } from '../router.js?v=11';
+import { icon } from '../components/nav.js?v=11';
+import { store } from '../store.js?v=11';
 
 const PHOTO_STORIES = {
   'mountain-lake': {
@@ -59,11 +59,11 @@ export function renderPhotos(storyId = null) {
   } : PHOTO_STORIES[storyId];
   if (!story) return renderPhotoIndex();
   return `<article class="photo-story">
-    <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回归档</span></button>
+    <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回${state.returnPage === 'photos' ? '摄影集' : '归档'}</span></button>
     <header class="photo-story-header"><span class="detail-type">Photo</span><h1 class="photo-story-title">${escapeHtml(story.title)}</h1><p class="photo-story-meta">${escapeHtml(story.place)} · ${escapeHtml(story.date)}</p></header>
-    <figure class="photo-cover"><img src="${story.cover}" alt="${escapeHtml(story.title)}"></figure>
+    <figure class="photo-cover"><img src="${escapeHtml(story.cover)}" alt="${escapeHtml(story.title)}"></figure>
     <section class="story-section"><h2>序列预览</h2><div class="photo-sequence">
-      ${story.gallery.map(([src, alt, orientation]) => `<figure class="photo-frame ${orientation}" tabindex="0"><img src="${src}" alt="${escapeHtml(alt)}"></figure>`).join('')}
+      ${story.gallery.map(([src, alt, orientation]) => `<figure class="photo-frame ${orientation === 'portrait' ? 'portrait' : 'landscape'}" tabindex="0"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}"></figure>`).join('')}
     </div></section>
     <section class="story-section"><h2>创作说明</h2><p class="creation-note">${escapeHtml(story.note)}</p></section>
   </article>`;
@@ -82,7 +82,7 @@ function renderPhotoIndex() {
 function escapeHtml(value = '') { return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
 
 export function bindPhotosEvents() {
-  document.getElementById('back-to-home')?.addEventListener('click', () => navigate('home'));
+  document.getElementById('back-to-home')?.addEventListener('click', () => navigate(state.returnPage === 'photos' ? 'photos' : 'home', state.returnPage === 'photos' ? null : 'all'));
   document.querySelectorAll('[data-story]').forEach(card => {
     const open = () => navigate('photos', card.dataset.story);
     card.addEventListener('click', open);
@@ -100,7 +100,10 @@ function openLightbox(url, alt) {
   overlay.className = 'lightbox-overlay';
   overlay.setAttribute('role', 'dialog');
   overlay.setAttribute('aria-label', '图片预览');
-  overlay.innerHTML = `<img src="${url}" alt="${alt}">`;
+  const image = document.createElement('img');
+  image.src = url;
+  image.alt = alt;
+  overlay.appendChild(image);
   const close = () => { overlay.remove(); document.removeEventListener('keydown', onKey); };
   const onKey = event => { if (event.key === 'Escape') close(); };
   overlay.addEventListener('click', close);

@@ -1,6 +1,6 @@
-import { signIn, signOut, getSession, publishArticle, publishPhotoStory, uploadMedia } from '../supabase.js?v=10';
-import { renderMarkdown } from '../utils/markdown.js?v=10';
-import { icon } from '../components/nav.js?v=10';
+import { signIn, signOut, getSession, publishArticle, publishPhotoStory, uploadMedia } from '../supabase.js?v=11';
+import { renderMarkdown } from '../utils/markdown.js?v=11';
+import { icon } from '../components/nav.js?v=11';
 
 let photoImages = [];
 let articleCover = '';
@@ -63,20 +63,27 @@ export function bindAdminEvents() {
     const files = [...(event.clipboardData?.files || [])].filter(file => file.type.startsWith('image/'));
     if (!files.length) return;
     event.preventDefault();
-    await insertUploadedImages(content, files);
+    const status = document.getElementById('article-status');
+    await run(status, '正在上传粘贴的图片…', async () => { await insertUploadedImages(content, files); return '图片已插入'; });
     updatePreview();
   });
   document.getElementById('article-inline-image')?.addEventListener('change', async event => {
-    await insertUploadedImages(content, [...event.target.files]);
+    if (!event.target.files.length) return;
+    const status = document.getElementById('article-status');
+    await run(status, '正在上传插图…', async () => { await insertUploadedImages(content, [...event.target.files]); return '插图已插入'; });
     event.target.value = '';
     updatePreview();
   });
 
   document.getElementById('photo-images')?.addEventListener('change', async event => {
     const files = [...event.target.files];
+    if (!files.length) return;
     const list = document.getElementById('admin-photo-list');
-    list.innerHTML = '<p class="admin-empty">正在上传照片…</p>';
-    for (const file of files) photoImages.push({ url: await uploadMedia(file, 'photo-stories'), alt: file.name.replace(/\.[^.]+$/, ''), orientation: 'landscape' });
+    const status = document.getElementById('photo-status');
+    await run(status, '正在上传照片…', async () => {
+      for (const file of files) photoImages.push({ url: await uploadMedia(file, 'photo-stories'), alt: file.name.replace(/\.[^.]+$/, ''), orientation: 'landscape' });
+      return `已上传 ${files.length} 张照片`;
+    });
     event.target.value = '';
     renderPhotoList();
   });

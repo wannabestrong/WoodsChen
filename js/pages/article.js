@@ -1,7 +1,7 @@
-import { store } from '../store.js?v=10';
-import { navigate } from '../router.js?v=10';
-import { renderMarkdown } from '../utils/markdown.js?v=10';
-import { icon } from '../components/nav.js?v=10';
+import { store } from '../store.js?v=11';
+import { navigate, state } from '../router.js?v=11';
+import { renderMarkdown } from '../utils/markdown.js?v=11';
+import { icon } from '../components/nav.js?v=11';
 
 const DEMO_ESSAYS = {
   loneliness: { title: '关于孤独的十个片段', date: '2026.08.01' },
@@ -25,7 +25,7 @@ export function renderArticle(articleId) {
   const cover = cloudArticle?.cover_url || 'assets/archive/rain-city-cover.png';
 
   return `<article class="detail-page">
-    <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回归档</span></button>
+    <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回${state.returnFilter === 'essay' ? 'Notes' : '归档'}</span></button>
     <header>
       <div class="detail-meta"><span class="detail-type">Essay</span><span>｜</span><time>${escapeHtml((article.date || '').replaceAll('-', '.'))}</time></div>
       <h1 class="detail-title">${escapeHtml(article.title)}</h1>
@@ -36,7 +36,7 @@ export function renderArticle(articleId) {
     ${cloudArticle?.cover_url ? '' : '<p class="article-caption">生成的视觉占位素材，待真实作品替换。</p>'}
     <nav class="detail-pagination" aria-label="文章导航">
       ${renderAdjacentButton(adjacent.previous, 'previous')}
-      <button class="archive-return" type="button" data-home>${icon('layout-grid')}<span>回到归档</span></button>
+      <button class="archive-return" type="button" data-home>${icon('layout-grid')}<span>回到${state.returnFilter === 'essay' ? 'Notes' : '归档'}</span></button>
       ${renderAdjacentButton(adjacent.next, 'next')}
     </nav>
   </article>`;
@@ -59,8 +59,9 @@ function renderAdjacentButton(article, direction) {
 }
 
 export function bindArticleEvents() {
-  document.getElementById('back-to-home')?.addEventListener('click', () => navigate('home'));
-  document.querySelector('[data-home]')?.addEventListener('click', () => navigate('home'));
+  const returnTo = () => navigate('home', state.returnFilter || 'all');
+  document.getElementById('back-to-home')?.addEventListener('click', returnTo);
+  document.querySelector('[data-home]')?.addEventListener('click', returnTo);
   document.querySelectorAll('[data-open]').forEach(button => button.addEventListener('click', () => navigate('article', button.dataset.open)));
 }
 

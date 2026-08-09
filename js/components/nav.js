@@ -1,4 +1,4 @@
-import { state, navigate } from '../router.js?v=10';
+import { state, navigate } from '../router.js?v=11';
 
 const LINKS = [
   { page: 'home', label: 'Archive', filter: 'all' },
@@ -23,7 +23,7 @@ export function renderNav() {
   const preferences = readDisplayPreferences();
   applyDisplayPreferences(preferences);
 
-  const activeLabel = state.page === 'article' ? 'Archive' : state.page === 'home' ? (state.filter === 'essay' ? 'Notes' : 'Archive') : state.page === 'photos' ? 'Photos' : state.page === 'about' ? 'About' : '';
+  const activeLabel = state.page === 'article' ? (state.returnFilter === 'essay' ? 'Notes' : 'Archive') : state.page === 'home' ? (state.filter === 'essay' ? 'Notes' : 'Archive') : state.page === 'photos' ? 'Photos' : state.page === 'about' ? 'About' : '';
   nav.innerHTML = `
     <div class="nav-inner">
       <button class="nav-brand" type="button" data-page="home" aria-label="返回 Archive">OPEN</button>
