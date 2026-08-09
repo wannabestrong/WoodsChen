@@ -1,6 +1,6 @@
-import { store } from '../store.js?v=11';
-import { navigate, state } from '../router.js?v=11';
-import { icon } from '../components/nav.js?v=11';
+import { store } from '../store.js?v=13';
+import { navigate, renderFromLocation, state } from '../router.js?v=13';
+import { icon } from '../components/nav.js?v=13';
 
 const DEMO_ITEMS = [
   { id: 'rain-city', type: 'photo', title: '雨后的城市', place: 'Shanghai', date: '2026.08.06', image: 'assets/archive/rain-city-cover.png', size: 'wide' },
@@ -155,7 +155,15 @@ export function bindHomeEvents() {
     if (!overlay.hidden) input?.focus();
   };
   window.addEventListener('open:search', activeSearchHandler);
-  const closeSearch = () => { if (overlay) overlay.hidden = true; };
+  const closeSearch = () => {
+    if (overlay) overlay.hidden = true;
+    let returnHash = null;
+    try { returnHash = sessionStorage.getItem('fc_search_return_hash'); sessionStorage.removeItem('fc_search_return_hash'); } catch {}
+    if (returnHash) {
+      history.pushState(null, '', returnHash);
+      renderFromLocation();
+    }
+  };
   const onOverlayClick = event => { if (event.target === overlay) closeSearch(); };
   const onSearchKeyDown = event => { if (event.key === 'Escape' && !overlay?.hidden) closeSearch(); };
   overlay?.addEventListener('click', onOverlayClick);

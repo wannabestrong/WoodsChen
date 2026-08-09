@@ -1,6 +1,6 @@
-import { navigate, state } from '../router.js?v=11';
-import { icon } from '../components/nav.js?v=11';
-import { store } from '../store.js?v=11';
+import { navigate, state } from '../router.js?v=13';
+import { icon } from '../components/nav.js?v=13';
+import { store } from '../store.js?v=13';
 
 const PHOTO_STORIES = {
   'mountain-lake': {

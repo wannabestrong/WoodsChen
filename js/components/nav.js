@@ -1,4 +1,4 @@
-import { state, navigate } from '../router.js?v=11';
+import { state, navigate } from '../router.js?v=13';
 
 const LINKS = [
   { page: 'home', label: 'Archive', filter: 'all' },
@@ -46,7 +46,10 @@ export function renderNav() {
     button.addEventListener('click', () => navigate(button.dataset.page, button.dataset.filter || null));
   });
   nav.querySelector('#global-search')?.addEventListener('click', () => {
-    if (state.page !== 'home' || state.filter !== 'all') navigate('home', 'all');
+    if (state.page !== 'home' || state.filter !== 'all') {
+      try { sessionStorage.setItem('fc_search_return_hash', window.location.hash); } catch {}
+      navigate('home', 'all');
+    }
     setTimeout(() => window.dispatchEvent(new CustomEvent('open:search')), 0);
   });
   const settingsButton = nav.querySelector('#display-settings');
