@@ -2,14 +2,20 @@
    app.js — 主入口：初始化 + 全局事件 + 底部翻页箭头
    ========================================= */
 
-import { state, render, renderFromLocation, arrowNext, arrowPrev } from './router.js?v=13';
-import { initSupabase } from './supabase.js?v=13';
+import { state, render, renderFromLocation, arrowNext, arrowPrev } from './router.js?v=14';
+import { initSupabase } from './supabase.js?v=14';
 
 /* ---- 初始化 ---- */
 document.addEventListener('DOMContentLoaded', () => {
   renderFromLocation();
   setupScrollArrow();
-  initSupabase();
+  // 先完成首屏，再在浏览器空闲时同步云端内容，避免网络请求阻塞首次交互。
+  const sync = () => initSupabase();
+  if ('requestIdleCallback' in window) {
+    window.requestIdleCallback(sync, { timeout: 1500 });
+  } else {
+    window.setTimeout(sync, 0);
+  }
 });
 
 window.addEventListener('popstate', renderFromLocation);

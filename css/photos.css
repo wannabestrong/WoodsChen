@@ -5,6 +5,7 @@
 .photo-index-header h1 { margin: 0 0 4px; font-family: "Noto Serif SC", "Songti SC", SimSun, serif; font-size: 38px; font-weight: 400; }
 .photo-index-header p { margin: 0; color: var(--text-muted); font-size: 11px; }
 .photo-index-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.photo-index-empty { grid-column: 1 / -1; color: var(--text-muted); padding: 36px 0; }
 .photo-index-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); cursor: pointer; }
 .photo-index-card:hover, .photo-index-card:focus-visible { border-color: var(--line-strong); outline: none; }
 .photo-index-cover { aspect-ratio: 16 / 9; overflow: hidden; }

@@ -94,6 +94,8 @@
 .archive-card.medium { grid-column: span 2; }
 .archive-media { position: absolute; inset: 0; }
 .archive-media img { width: 100%; height: 100%; object-fit: cover; }
+.archive-media-empty { background: linear-gradient(135deg, #151b24 0%, #0b0f15 52%, #1b2530 100%); }
+.archive-media-empty::after { content: 'OPEN'; position: absolute; inset: 0; display: grid; place-items: center; color: rgba(241,245,249,.2); font: 600 11px/1 system-ui, sans-serif; letter-spacing: .28em; }
 .archive-card::after { content: ""; position: absolute; inset: 35% 0 0; background: linear-gradient(to bottom, transparent, rgba(5, 7, 9, 0.94)); pointer-events: none; }
 .archive-card-text { position: absolute; z-index: 2; inset: auto 16px 14px; }
 .archive-kind { position: absolute; z-index: 2; top: 12px; left: 12px; padding: 3px 8px; border-radius: 4px; background: rgba(8, 12, 16, 0.74); color: var(--blue); font-size: 10px; text-transform: uppercase; }

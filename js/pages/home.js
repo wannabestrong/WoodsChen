@@ -1,27 +1,17 @@
-import { store } from '../store.js?v=13';
-import { navigate, renderFromLocation, state } from '../router.js?v=13';
-import { icon } from '../components/nav.js?v=13';
-
-const DEMO_ITEMS = [
-  { id: 'rain-city', type: 'photo', title: '雨后的城市', place: 'Shanghai', date: '2026.08.06', image: 'assets/archive/rain-city-cover.png', size: 'wide' },
-  { id: 'loneliness', type: 'essay', title: '关于孤独的十个片段', date: '2026.08.01', image: 'assets/archive/loneliness-cover.png', size: 'wide' },
-  { id: 'mountain-lake', type: 'photo', title: '山与湖的对话', place: 'Dali', date: '2026.07.28', image: 'assets/archive/mountain-lake-cover.png', size: 'hero' },
-  { id: 'future-self', type: 'essay', title: '写给未来的自己', date: '2026.07.25', image: 'assets/archive/future-self-cover.png', size: 'tall' },
-  { id: 'dusk-tram', type: 'photo', title: '黄昏电车', place: 'Chongqing', date: '2026.07.18', image: 'assets/archive/dusk-tram-cover.png', size: 'medium' },
-  { id: 'unfinished-thoughts', type: 'essay', title: '一些不成文的想法', date: '2026.07.12', image: 'assets/archive/unfinished-thoughts-cover.png', size: 'medium' },
-  { id: 'seaside-evening', type: 'photo', title: '海边的傍晚', place: 'Xiamen', date: '2026.07.05', image: 'assets/archive/seaside-evening-cover.png', size: 'medium' },
-  { id: 'window-light', type: 'photo', title: '窗边的光影', place: 'Beijing', date: '2026.06.21', image: 'assets/archive/window-light-cover.png', size: 'wide' },
-];
+import { store } from '../store.js?v=14';
+import { navigate, renderFromLocation, state } from '../router.js?v=14';
+import { icon } from '../components/nav.js?v=14';
+import { STATIC_ARTICLES, isLegacyContent } from '../content.js?v=14';
 
 let activeSearchHandler = null;
 let cleanupSearchInteractions = () => {};
 
 function cloudItems() {
-  return store.getArticles().map((article, index) => ({
+  return store.getArticles().filter(article => !isLegacyContent(article.id)).map((article, index) => ({
     ...article,
     id: article.id,
     type: 'essay',
-    image: article.cover_url || DEMO_ITEMS.filter(item => item.type === 'essay')[index % 3].image,
+    image: article.cover_url || '',
     size: index % 2 ? 'medium' : 'wide',
     date: (article.date || '').replaceAll('-', '.'),
     cloud: true,
@@ -29,23 +19,31 @@ function cloudItems() {
 }
 
 function cloudPhotoItems() {
-  return store.getPhotoStories().map((story, index) => ({
+  return store.getPhotoStories().filter(story => !isLegacyContent(story.id)).map((story, index) => ({
     id: story.id,
     type: 'photo',
     title: story.title,
     place: story.place || '',
     date: (story.date || '').replaceAll('-', '.'),
-    image: story.cover_url || DEMO_ITEMS.filter(item => item.type === 'photo')[index % 5].image,
+    image: story.cover_url || '',
     size: index === 0 ? 'hero' : index % 3 === 0 ? 'wide' : 'medium',
     cloud: true,
   }));
 }
 
 function items() {
-  const cloud = [...cloudItems(), ...cloudPhotoItems()].sort((a, b) => String(b.date).localeCompare(String(a.date)));
-  if (!cloud.length) return DEMO_ITEMS;
-  const ids = new Set(cloud.map(item => item.id));
-  return [...cloud, ...DEMO_ITEMS.filter(item => !ids.has(item.id))].slice(0, 8);
+  const cloud = [...cloudItems(), ...cloudPhotoItems()];
+  const cloudIds = new Set(cloud.map(item => String(item.id)));
+  const staticItems = STATIC_ARTICLES
+    .filter(article => !cloudIds.has(String(article.id)))
+    .map((article, index) => ({
+      ...article,
+      type: 'essay',
+      image: article.cover_url || '',
+      size: index % 2 ? 'medium' : 'wide',
+      date: (article.date || '').replaceAll('-', '.'),
+    }));
+  return [...cloud, ...staticItems].sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
 
 export function renderHome() {
@@ -92,7 +90,7 @@ export function renderHome() {
       <aside class="others-column" aria-label="Others">
         ${renderRecent(allItems)}
         ${renderStats(allItems)}
-        ${renderCalendar()}
+    ${renderCalendar()}
         ${renderMusic()}
       </aside>
     </div>
@@ -107,7 +105,7 @@ export function renderHome() {
 
 function renderCard(item) {
   return `<article class="archive-card ${item.size || 'medium'}" tabindex="0" data-id="${escapeHtml(item.id)}" data-type="${item.type}" data-search="${escapeHtml(`${item.title} ${item.place || ''} ${item.date || ''}`.toLowerCase())}">
-    <div class="archive-media"><img src="${item.image}" alt="${escapeHtml(item.title)}" loading="lazy"></div>
+    <div class="archive-media${item.image ? '' : ' archive-media-empty'}">${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" loading="lazy" decoding="async">` : '<span aria-hidden="true"></span>'}</div>
     <span class="archive-kind ${item.type}">${item.type}</span>
     <div class="archive-card-text"><h2>${escapeHtml(item.title)}</h2><div class="archive-meta">${item.place ? `${escapeHtml(item.place)} · ` : ''}${escapeHtml(item.date || '')}</div></div>
   </article>`;
@@ -124,9 +122,14 @@ function renderStats(allItems) {
 }
 
 function renderCalendar() {
-  const blanks = Array.from({ length: 5 }, () => '<span></span>').join('');
-  const days = Array.from({ length: 31 }, (_, index) => `<span class="${index + 1 === 6 ? 'active' : ''}">${index + 1}</span>`).join('');
-  return `<section class="side-widget"><div class="calendar-head">August 2026</div><div class="calendar-grid"><span class="weekday">M</span><span class="weekday">T</span><span class="weekday">W</span><span class="weekday">T</span><span class="weekday">F</span><span class="weekday">S</span><span class="weekday">S</span>${blanks}${days}</div></section>`;
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const blanks = Array.from({ length: firstDay }, () => '<span></span>').join('');
+  const days = Array.from({ length: daysInMonth }, (_, index) => `<span class="${index + 1 === now.getDate() ? 'active' : ''}">${index + 1}</span>`).join('');
+  return `<section class="side-widget"><div class="calendar-head">${now.toLocaleString('en-US', { month: 'long' })} ${year}</div><div class="calendar-grid"><span class="weekday">M</span><span class="weekday">T</span><span class="weekday">W</span><span class="weekday">T</span><span class="weekday">F</span><span class="weekday">S</span><span class="weekday">S</span>${blanks}${days}</div></section>`;
 }
 
 function renderMusic() {

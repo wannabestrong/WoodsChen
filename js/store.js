@@ -10,10 +10,21 @@ const KEYS = {
   comments: 'fc_comments',
 };
 
+const LEGACY_IDS = new Set([
+  'rain-city', 'loneliness', 'mountain-lake', 'future-self',
+  'dusk-tram', 'unfinished-thoughts', 'seaside-evening', 'window-light',
+]);
+
 function read(key, fallback) {
   try {
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
+    const value = raw ? JSON.parse(raw) : fallback;
+    if (key === KEYS.articles || key === KEYS.photoStories) {
+      const cleaned = Array.isArray(value) ? value.filter(item => !LEGACY_IDS.has(String(item?.id))) : fallback;
+      if (raw && cleaned.length !== value.length) localStorage.setItem(key, JSON.stringify(cleaned));
+      return cleaned;
+    }
+    return value;
   } catch {
     return fallback;
   }

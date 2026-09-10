@@ -1,49 +1,15 @@
-import { navigate, state } from '../router.js?v=13';
-import { icon } from '../components/nav.js?v=13';
-import { store } from '../store.js?v=13';
-
-const PHOTO_STORIES = {
-  'mountain-lake': {
-    title: '山与湖的对话', place: 'Dali', date: '2026.07.28',
-    cover: 'assets/archive/mountain-lake-cover.png',
-    gallery: [
-      ['assets/archive/mountain-range-gallery.png', '冷水边的雪山山脉', 'landscape'],
-      ['assets/archive/forest-path-gallery.png', '雨后森林中的小径', 'portrait'],
-    ],
-    note: '这些图片目前是经过审核的视觉占位素材，用于确定摄影叙事的比例、节奏与移动端顺序；正式发布前应替换为拥有来源与使用权的真实作品。'
-  },
-  'rain-city': {
-    title: '雨后的城市', place: 'Shanghai', date: '2026.08.06',
-    cover: 'assets/archive/rain-city-cover.png', gallery: [],
-    note: '摄影集内容尚未补齐，当前先展示封面占位素材。'
-  },
-  'dusk-tram': {
-    title: '黄昏电车', place: 'Chongqing', date: '2026.07.18',
-    cover: 'assets/archive/dusk-tram-cover.png', gallery: [],
-    note: '摄影集内容尚未补齐，当前先展示封面占位素材。'
-  },
-  'seaside-evening': {
-    title: '海边的傍晚', place: 'Xiamen', date: '2026.07.05',
-    cover: 'assets/archive/seaside-evening-cover.png', gallery: [],
-    note: '摄影集内容尚未补齐，当前先展示封面占位素材。'
-  },
-  'window-light': {
-    title: '窗边的光影', place: 'Beijing', date: '2026.06.21',
-    cover: 'assets/archive/window-light-cover.png', gallery: [],
-    note: '摄影集内容尚未补齐，当前先展示封面占位素材。'
-  }
-};
+import { navigate, state } from '../router.js?v=14';
+import { icon } from '../components/nav.js?v=14';
+import { store } from '../store.js?v=14';
+import { isLegacyContent } from '../content.js?v=14';
 
 function stories() {
-  const cloudStories = store.getPhotoStories().map(item => ({
+  return store.getPhotoStories().filter(item => !isLegacyContent(item.id)).map(item => ({
     id: item.id, title: item.title, place: item.place || '', date: item.date || '',
     cover: item.cover_url || '',
     gallery: (item.images || []).map(image => [image.url || image.src, image.alt || item.title, image.orientation || 'landscape']),
     note: item.description || item.summary || '',
-  }));
-  const cloudIds = new Set(cloudStories.map(item => String(item.id)));
-  const fallbacks = Object.entries(PHOTO_STORIES).filter(([id]) => !cloudIds.has(id)).map(([id, story]) => ({ id, ...story }));
-  return [...cloudStories, ...fallbacks].sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  })).sort((a, b) => String(b.date).localeCompare(String(a.date)));
 }
 
 export function renderPhotos(storyId = null) {
@@ -56,26 +22,27 @@ export function renderPhotos(storyId = null) {
     cover: cloudStory.cover_url || '',
     gallery: (cloudStory.images || []).map(image => [image.url || image.src, image.alt || cloudStory.title, image.orientation || 'landscape']),
     note: cloudStory.description || cloudStory.summary || '',
-  } : PHOTO_STORIES[storyId];
+  } : null;
   if (!story) return renderPhotoIndex();
   return `<article class="photo-story">
     <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回${state.returnPage === 'photos' ? '摄影集' : '归档'}</span></button>
     <header class="photo-story-header"><span class="detail-type">Photo</span><h1 class="photo-story-title">${escapeHtml(story.title)}</h1><p class="photo-story-meta">${escapeHtml(story.place)} · ${escapeHtml(story.date)}</p></header>
-    <figure class="photo-cover"><img src="${escapeHtml(story.cover)}" alt="${escapeHtml(story.title)}"></figure>
+    ${story.cover ? `<figure class="photo-cover"><img src="${escapeHtml(story.cover)}" alt="${escapeHtml(story.title)}" decoding="async"></figure>` : ''}
     <section class="story-section"><h2>序列预览</h2><div class="photo-sequence">
-      ${story.gallery.map(([src, alt, orientation]) => `<figure class="photo-frame ${orientation === 'portrait' ? 'portrait' : 'landscape'}" tabindex="0"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}"></figure>`).join('')}
+      ${story.gallery.map(([src, alt, orientation]) => `<figure class="photo-frame ${orientation === 'portrait' ? 'portrait' : 'landscape'}" tabindex="0"><img src="${escapeHtml(src)}" alt="${escapeHtml(alt)}" loading="lazy" decoding="async"></figure>`).join('')}
     </div></section>
     <section class="story-section"><h2>创作说明</h2><p class="creation-note">${escapeHtml(story.note)}</p></section>
   </article>`;
 }
 
 function renderPhotoIndex() {
+  const photoStories = stories();
   return `<section class="photo-index" aria-labelledby="photo-index-title">
     <header class="photo-index-header"><span class="detail-type">Photo Archive</span><h1 id="photo-index-title">Photos</h1><p>摄影集</p></header>
-    <div class="photo-index-grid">${stories().map(story => `<article class="photo-index-card" tabindex="0" data-story="${escapeHtml(story.id)}">
+    <div class="photo-index-grid">${photoStories.length ? photoStories.map(story => `<article class="photo-index-card" tabindex="0" data-story="${escapeHtml(story.id)}">
       <div class="photo-index-cover"><img src="${escapeHtml(story.cover)}" alt="${escapeHtml(story.title)}" loading="lazy"></div>
       <div class="photo-index-copy"><h2>${escapeHtml(story.title)}</h2><p>${escapeHtml(story.place)} · ${escapeHtml(story.date)}</p></div>
-    </article>`).join('')}</div>
+    </article>`).join('') : '<p class="photo-index-empty">还没有摄影集。</p>'}</div>
   </section>`;
 }
 
