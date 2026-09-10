@@ -122,16 +122,6 @@
 .calendar-grid span { height: 20px; display: grid; place-items: center; }
 .calendar-grid .weekday { color: var(--text-soft); }
 .calendar-grid .active { border-radius: 50%; background: var(--blue); color: white; }
-.music-row { display: grid; grid-template-columns: 58px 1fr; gap: 14px; }
-.music-cover { width: 58px; aspect-ratio: 1; border-radius: 6px; object-fit: cover; }
-.music-title { margin: 4px 0 1px; font-weight: 500; }
-.music-artist { color: var(--text-muted); font-size: 11px; }
-.music-controls { margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 18px; }
-.music-controls button { border: 0; background: transparent; color: var(--text-muted); cursor: not-allowed; }
-.music-controls .play { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--blue); border-radius: 50%; color: var(--blue); }
-.music-controls svg { width: 15px; height: 15px; }
-.music-unavailable { margin-top: 10px; color: var(--text-muted); font-size: 10px; text-align: center; }
-
 .search-overlay { position: fixed; z-index: 180; inset: var(--header-height) 0 0; padding: 12px var(--page-gutter); background: rgba(2, 3, 5, 0.72); }
 .search-overlay[hidden] { display: none; }
 .search-panel { position: relative; width: min(680px, 100%); margin: 0 auto; }
@@ -143,7 +133,6 @@
 @media (max-width: 1180px) {
   .archive-shell { grid-template-columns: 210px minmax(0, 1fr); }
   .others-column { grid-column: 1 / -1; display: grid; grid-template-columns: repeat(3, 1fr); }
-  .music-widget { grid-column: span 3; }
 }
 
 @media (max-width: 760px) {
@@ -161,6 +150,5 @@
   .archive-card, .archive-card.wide, .archive-card.hero, .archive-card.tall, .archive-card.medium { grid-column: auto; grid-row: auto; }
   .archive-card h2 { font-size: 17px; }
   .others-column { display: flex; flex-direction: column; }
-  .music-widget { order: -1; }
   .side-widget { padding: 18px; }
 }

@@ -49,13 +49,6 @@
       "size": "1024x1536",
       "quality": "high",
       "prompt": "Use case: photorealistic-natural. Asset type: replace-later photo-story gallery image. A dense tall evergreen forest after light rain. A narrow natural path leading toward soft misty light, vertical tree trunks, and realistic moss. Natural low-saturation documentary landscape photograph with subtle film grain. 2:3 portrait, path centered and fully visible from the bottom edge inward, canopy and trunk edges safely contained. No people, animals, signs, text, logo, watermark, UI, frame, or border."
-    },
-    {
-      "id": "music-cover",
-      "out": "assets/music/music-cover.png",
-      "size": "1024x1024",
-      "quality": "high",
-      "prompt": "Use case: photorealistic-natural. Asset type: replace-later album-style cover for a personal site music player. A dark sea at night with distant low fog and one small lighthouse or solitary navigation light on a rocky edge, reflected faintly on water. Minimal low-saturation cinematic editorial photograph with subtle film grain. Square composition, lighthouse in the lower-right third, generous dark negative space, strong thumbnail silhouette. No title, artist name, readable text, logo, watermark, UI, frame, or border."
     }
   ]
 }

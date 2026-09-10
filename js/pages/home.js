@@ -1,7 +1,8 @@
-import { store } from '../store.js?v=14';
-import { navigate, renderFromLocation, state } from '../router.js?v=14';
-import { icon } from '../components/nav.js?v=14';
-import { STATIC_ARTICLES, isLegacyContent } from '../content.js?v=14';
+import { store } from '../store.js?v=16';
+import { navigate, renderFromLocation, state } from '../router.js?v=16';
+import { icon } from '../components/nav.js?v=16';
+import { bindIdentityNavigation, renderIdentityPanel } from '../components/identity.js?v=16';
+import { STATIC_ARTICLES, isLegacyContent } from '../content.js?v=16';
 
 let activeSearchHandler = null;
 let cleanupSearchInteractions = () => {};
@@ -52,29 +53,7 @@ export function renderHome() {
   const filtered = currentFilter === 'all' ? allItems : allItems.filter(item => item.type === currentFilter);
   return `
     <div class="archive-shell">
-      <aside class="identity-panel" aria-label="Identity">
-        <h2 class="identity-title">OPEN</h2>
-        <div class="identity-avatar"><img src="assets/avatar/avatar-replace-later.png" alt="匿名头像占位图"></div>
-        <div>
-          <p class="identity-statement">记录文字<br>保存瞬间</p>
-          <p class="identity-note">生活是自己的感受，<br>而不是别人的看法。</p>
-        </div>
-        <nav class="identity-nav" aria-label="Archive 分类">
-          <button class="${currentFilter === 'all' ? 'active' : ''}" type="button" data-filter="all">${icon('archive')}<span>Archive</span></button>
-          <button class="${currentFilter === 'essay' ? 'active' : ''}" type="button" data-filter="essay">${icon('file-text')}<span>Notes</span></button>
-          <button type="button" data-page="photos">${icon('image')}<span>Photos</span></button>
-          <button type="button" data-page="about">${icon('user-round')}<span>About</span></button>
-        </nav>
-        <footer class="identity-footer">
-          <div class="social-row">
-            <a class="social-link" href="https://github.com/" target="_blank" rel="noreferrer" aria-label="GitHub">${icon('github')}</a>
-            <a class="social-link" href="#" aria-label="Instagram">${icon('instagram')}</a>
-            <a class="social-link" href="mailto:hello@example.com" aria-label="Email">${icon('mail')}</a>
-            <a class="social-link" href="#" aria-label="RSS">${icon('rss')}</a>
-          </div>
-          <p class="copyright">© 2026 OPEN<br>Made with care</p>
-        </footer>
-      </aside>
+      ${renderIdentityPanel({ activePage: 'home', activeFilter: currentFilter })}
 
       <section class="archive-main" aria-labelledby="archive-title">
         <header class="archive-heading">
@@ -90,8 +69,7 @@ export function renderHome() {
       <aside class="others-column" aria-label="Others">
         ${renderRecent(allItems)}
         ${renderStats(allItems)}
-    ${renderCalendar()}
-        ${renderMusic()}
+        ${renderCalendar()}
       </aside>
     </div>
     <div class="search-overlay" id="search-overlay" hidden>
@@ -118,7 +96,13 @@ function renderRecent(allItems) {
 function renderStats(allItems) {
   const essayCount = allItems.filter(item => item.type === 'essay').length;
   const photoCount = allItems.filter(item => item.type === 'photo').length;
-  return `<section class="side-widget"><h2>Statistics</h2><div class="stat-list"><div class="stat-row"><span class="stat-icon">${icon('file-text')}</span><span>文章</span><strong class="stat-value">${essayCount}</strong></div><div class="stat-row"><span class="stat-icon">${icon('images')}</span><span>摄影集</span><strong class="stat-value">${photoCount}</strong></div><div class="stat-row"><span class="stat-icon">${icon('clock-3')}</span><span>记录天数</span><strong class="stat-value">542</strong></div></div></section>`;
+  return `<section class="side-widget"><h2>Statistics</h2><div class="stat-list"><div class="stat-row"><span class="stat-icon">${icon('file-text')}</span><span>文章</span><strong class="stat-value">${essayCount}</strong></div><div class="stat-row"><span class="stat-icon">${icon('images')}</span><span>摄影集</span><strong class="stat-value">${photoCount}</strong></div><div class="stat-row"><span class="stat-icon">${icon('clock-3')}</span><span>记录天数</span><strong class="stat-value">${recordingDays()}</strong></div></div></section>`;
+}
+
+function recordingDays(now = new Date()) {
+  const start = Date.UTC(2026, 8, 10);
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(0, Math.floor((today - start) / 86400000) + 1);
 }
 
 function renderCalendar() {
@@ -132,17 +116,13 @@ function renderCalendar() {
   return `<section class="side-widget"><div class="calendar-head">${now.toLocaleString('en-US', { month: 'long' })} ${year}</div><div class="calendar-grid"><span class="weekday">M</span><span class="weekday">T</span><span class="weekday">W</span><span class="weekday">T</span><span class="weekday">F</span><span class="weekday">S</span><span class="weekday">S</span>${blanks}${days}</div></section>`;
 }
 
-function renderMusic() {
-  return `<section class="side-widget music-widget"><h2>Music</h2><div class="music-row"><img class="music-cover" src="assets/music/music-cover.png" alt="夜海灯塔音乐封面占位图"><div><p class="music-title">Night Train</p><p class="music-artist">Audio pending</p><div class="music-controls"><button type="button" disabled aria-label="上一首">${icon('skip-back')}</button><button class="play" type="button" disabled aria-label="音源暂不可用">${icon('play')}</button><button type="button" disabled aria-label="下一首">${icon('skip-forward')}</button></div></div></div><p class="music-unavailable">音源将在获得授权后启用</p></section>`;
-}
-
 export function bindHomeEvents() {
   cleanupSearchInteractions();
   const applyFilter = filter => { state.filter = filter; navigate('home', filter); };
-  document.querySelectorAll('.identity-nav [data-filter], .view-all[data-filter]').forEach(button => {
+  bindIdentityNavigation(navigate);
+  document.querySelectorAll('.view-all[data-filter]').forEach(button => {
     button.addEventListener('click', () => applyFilter(button.dataset.filter));
   });
-  document.querySelectorAll('.identity-nav [data-page]').forEach(button => button.addEventListener('click', () => navigate(button.dataset.page)));
   document.querySelectorAll('.archive-card').forEach(card => {
     const open = () => navigate(card.dataset.type === 'photo' ? 'photos' : 'article', card.dataset.id);
     card.addEventListener('click', open);

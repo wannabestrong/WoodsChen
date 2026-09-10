@@ -1,7 +1,8 @@
-import { navigate, state } from '../router.js?v=14';
-import { icon } from '../components/nav.js?v=14';
-import { store } from '../store.js?v=14';
-import { isLegacyContent } from '../content.js?v=14';
+import { navigate, state } from '../router.js?v=16';
+import { icon } from '../components/nav.js?v=16';
+import { bindIdentityNavigation, renderIdentityPanel } from '../components/identity.js?v=16';
+import { store } from '../store.js?v=16';
+import { isLegacyContent } from '../content.js?v=16';
 
 function stories() {
   return store.getPhotoStories().filter(item => !isLegacyContent(item.id)).map(item => ({
@@ -13,17 +14,29 @@ function stories() {
 }
 
 export function renderPhotos(storyId = null) {
-  if (!storyId) return renderPhotoIndex();
-  const cloudStory = store.getPhotoStories().find(item => String(item.id) === String(storyId));
-  const story = cloudStory ? {
-    title: cloudStory.title,
-    place: cloudStory.place || '',
-    date: cloudStory.date || '',
-    cover: cloudStory.cover_url || '',
-    gallery: (cloudStory.images || []).map(image => [image.url || image.src, image.alt || cloudStory.title, image.orientation || 'landscape']),
-    note: cloudStory.description || cloudStory.summary || '',
-  } : null;
-  if (!story) return renderPhotoIndex();
+  let content = renderPhotoIndex();
+
+  if (storyId) {
+    const cloudStory = store.getPhotoStories().find(item => String(item.id) === String(storyId));
+    const story = cloudStory ? {
+      title: cloudStory.title,
+      place: cloudStory.place || '',
+      date: cloudStory.date || '',
+      cover: cloudStory.cover_url || '',
+      gallery: (cloudStory.images || []).map(image => [image.url || image.src, image.alt || cloudStory.title, image.orientation || 'landscape']),
+      note: cloudStory.description || cloudStory.summary || '',
+    } : null;
+
+    if (story) content = renderPhotoStory(story);
+  }
+
+  return `<div class="photo-shell">
+    ${renderIdentityPanel({ activePage: 'photos' })}
+    <div class="photo-main">${content}</div>
+  </div>`;
+}
+
+function renderPhotoStory(story) {
   return `<article class="photo-story">
     <button class="detail-back" id="back-to-home" type="button">${icon('arrow-left')}<span>返回${state.returnPage === 'photos' ? '摄影集' : '归档'}</span></button>
     <header class="photo-story-header"><span class="detail-type">Photo</span><h1 class="photo-story-title">${escapeHtml(story.title)}</h1><p class="photo-story-meta">${escapeHtml(story.place)} · ${escapeHtml(story.date)}</p></header>
@@ -49,6 +62,7 @@ function renderPhotoIndex() {
 function escapeHtml(value = '') { return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]); }
 
 export function bindPhotosEvents() {
+  bindIdentityNavigation(navigate);
   document.getElementById('back-to-home')?.addEventListener('click', () => navigate(state.returnPage === 'photos' ? 'photos' : 'home', state.returnPage === 'photos' ? null : 'all'));
   document.querySelectorAll('[data-story]').forEach(card => {
     const open = () => navigate('photos', card.dataset.story);

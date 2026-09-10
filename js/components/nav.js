@@ -1,10 +1,10 @@
-import { state, navigate } from '../router.js?v=14';
+import { state, navigate } from '../router.js?v=16';
 
 const LINKS = [
-  { page: 'home', label: 'Archive', filter: 'all' },
-  { page: 'home', label: 'Notes', filter: 'essay' },
-  { page: 'photos', label: 'Photos' },
-  { page: 'about', label: 'About' },
+  { id: 'archive', page: 'home', label: '首页', filter: 'all' },
+  { id: 'notes', page: 'home', label: '文章', filter: 'essay' },
+  { id: 'photos', page: 'photos', label: '照片' },
+  { id: 'about', page: 'about', label: '关于' },
 ];
 
 const DISPLAY_KEY = 'fc_display_preferences';
@@ -23,12 +23,12 @@ export function renderNav() {
   const preferences = readDisplayPreferences();
   applyDisplayPreferences(preferences);
 
-  const activeLabel = state.page === 'article' ? (state.returnFilter === 'essay' ? 'Notes' : 'Archive') : state.page === 'home' ? (state.filter === 'essay' ? 'Notes' : 'Archive') : state.page === 'photos' ? 'Photos' : state.page === 'about' ? 'About' : '';
+  const activeId = state.page === 'article' ? (state.returnFilter === 'essay' ? 'notes' : 'archive') : state.page === 'home' ? (state.filter === 'essay' ? 'notes' : 'archive') : state.page === 'photos' ? 'photos' : state.page === 'about' ? 'about' : '';
   nav.innerHTML = `
     <div class="nav-inner">
-      <button class="nav-brand" type="button" data-page="home" aria-label="返回 Archive">OPEN</button>
+      <button class="nav-brand" type="button" data-page="home" aria-label="返回首页">OPEN</button>
       <div class="nav-links" aria-label="主导航">
-        ${LINKS.map(link => `<button class="nav-link${activeLabel === link.label ? ' active' : ''}" type="button" data-page="${link.page}" data-filter="${link.filter || ''}">${link.label}</button>`).join('')}
+        ${LINKS.map(link => `<button class="nav-link${activeId === link.id ? ' active' : ''}" type="button" data-page="${link.page}" data-filter="${link.filter || ''}">${link.label}</button>`).join('')}
       </div>
       <div class="nav-tools">
         <button class="icon-button" id="global-search" type="button" aria-label="搜索" title="搜索">${icon('search')}</button>
