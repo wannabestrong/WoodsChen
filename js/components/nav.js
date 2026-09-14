@@ -1,4 +1,4 @@
-import { state, navigate } from '../router.js?v=16';
+import { state, navigate } from '../router.js?v=17';
 
 const LINKS = [
   { id: 'archive', page: 'home', label: '首页', filter: 'all' },

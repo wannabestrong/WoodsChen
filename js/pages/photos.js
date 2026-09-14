@@ -1,8 +1,8 @@
-import { navigate, state } from '../router.js?v=16';
-import { icon } from '../components/nav.js?v=16';
-import { bindIdentityNavigation, renderIdentityPanel } from '../components/identity.js?v=16';
-import { store } from '../store.js?v=16';
-import { isLegacyContent } from '../content.js?v=16';
+import { navigate, state } from '../router.js?v=17';
+import { icon } from '../components/nav.js?v=17';
+import { bindIdentityNavigation, renderIdentityPanel } from '../components/identity.js?v=17';
+import { store } from '../store.js?v=17';
+import { isLegacyContent } from '../content.js?v=17';
 
 function stories() {
   return store.getPhotoStories().filter(item => !isLegacyContent(item.id)).map(item => ({

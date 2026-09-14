@@ -1,9 +1,9 @@
-import { icon } from '../components/nav.js?v=16';
+import { icon } from '../components/nav.js?v=17';
 
 export function renderAbout() {
   return `<section class="about-page" aria-labelledby="about-title">
     <div class="about-profile">
-      <div class="about-avatar"><img src="assets/avatar/avatar-replace-later.png" alt="匿名头像占位图"></div>
+      <div class="about-avatar"><img src="assets/avatar/avatar.png" alt="Forest Chen 的个人头像"></div>
       <div><h1 class="about-title" id="about-title">OPEN</h1><p class="about-tagline">记录文字，保存瞬间。</p><p class="about-copy">这里暂时保留简短的个人介绍位置。正式内容将由用户提供，不在占位阶段添加年份、地点、经历或身份主张。</p></div>
       <nav class="about-links" aria-label="联系链接">
         <a class="about-link" href="https://github.com/wannabestrong" target="_blank" rel="noreferrer">${icon('github')}<span>GitHub</span><span class="arrow">→</span></a>

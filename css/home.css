@@ -21,10 +21,12 @@
   padding: 36px 24px 22px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 .identity-title { margin: 0 0 28px; text-align: center; font-size: 26px; font-weight: 300; }
 .identity-avatar {
   width: 138px;
+  flex-shrink: 0;
   aspect-ratio: 1;
   margin: 0 auto 32px;
   overflow: hidden;
@@ -61,6 +63,16 @@
 .social-link:hover { color: var(--blue); }
 .social-link svg { width: 15px; height: 15px; stroke-width: 1.6; }
 .copyright { margin: 34px 0 0; color: var(--text-muted); font-size: 12px; line-height: 2; }
+
+@media (min-width: 761px) and (max-height: 900px) {
+  .identity-panel { padding: 20px 24px 14px; }
+  .identity-title { margin-bottom: 12px; }
+  .identity-avatar { margin-bottom: 14px; }
+  .identity-note { margin: 12px auto 14px; }
+  .identity-nav button { height: 40px; }
+  .identity-footer { margin-top: 12px; padding-top: 12px; }
+  .copyright { margin-top: 12px; }
+}
 
 .archive-main { padding: 24px 20px 20px; }
 .archive-heading { display: flex; align-items: center; gap: 10px; margin-bottom: 24px; }

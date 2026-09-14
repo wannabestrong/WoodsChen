@@ -1,8 +1,8 @@
-import { store } from '../store.js?v=16';
-import { navigate, state } from '../router.js?v=16';
-import { renderMarkdown } from '../utils/markdown.js?v=16';
-import { icon } from '../components/nav.js?v=16';
-import { STATIC_ARTICLES, isLegacyContent } from '../content.js?v=16';
+import { store } from '../store.js?v=17';
+import { navigate, state } from '../router.js?v=17';
+import { renderMarkdown } from '../utils/markdown.js?v=17';
+import { icon } from '../components/nav.js?v=17';
+import { STATIC_ARTICLES, isLegacyContent } from '../content.js?v=17';
 
 export function renderArticle(articleId) {
   const articles = store.getArticles().filter(article => !isLegacyContent(article.id));
