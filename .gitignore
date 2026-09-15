@@ -6,3 +6,6 @@ tmp/
 output/
 __pycache__/
 *.py[cod]
+
+# 本地文档，不推送
+开发与部署指南.md

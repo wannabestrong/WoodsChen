@@ -1,10 +1,11 @@
-import { state, navigate } from '../router.js?v=17';
+import { state, navigate } from '../router.js?v=18';
 
 const LINKS = [
   { id: 'archive', page: 'home', label: '首页', filter: 'all' },
   { id: 'notes', page: 'home', label: '文章', filter: 'essay' },
   { id: 'photos', page: 'photos', label: '照片' },
   { id: 'about', page: 'about', label: '关于' },
+  { id: 'admin', page: 'admin', label: '后台' },
 ];
 
 const DISPLAY_KEY = 'fc_display_preferences';
@@ -23,7 +24,7 @@ export function renderNav() {
   const preferences = readDisplayPreferences();
   applyDisplayPreferences(preferences);
 
-  const activeId = state.page === 'article' ? (state.returnFilter === 'essay' ? 'notes' : 'archive') : state.page === 'home' ? (state.filter === 'essay' ? 'notes' : 'archive') : state.page === 'photos' ? 'photos' : state.page === 'about' ? 'about' : '';
+  const activeId = state.page === 'article' ? (state.returnFilter === 'essay' ? 'notes' : 'archive') : state.page === 'home' ? (state.filter === 'essay' ? 'notes' : 'archive') : state.page === 'photos' ? 'photos' : state.page === 'about' ? 'about' : state.page === 'admin' ? 'admin' : '';
   nav.innerHTML = `
     <div class="nav-inner">
       <button class="nav-brand" type="button" data-page="home" aria-label="返回首页">OPEN</button>
