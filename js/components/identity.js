@@ -1,11 +1,11 @@
-import { icon } from './nav.js?v=19';
+import { icon } from './nav.js?v=20';
 
 export function renderIdentityPanel({ activePage = 'home', activeFilter = 'all' } = {}) {
   const isHome = activePage === 'home';
 
   return `<aside class="identity-panel" aria-label="Identity">
     <h2 class="identity-title">OPEN</h2>
-    <div class="identity-avatar"><img src="assets/avatar/avatar.png" alt="Forest Chen 的个人头像"></div>
+    <div class="identity-avatar"><img src="assets/avatar/avatar.webp" alt="Forest Chen 的个人头像"></div>
     <div>
       <p class="identity-statement">记录文字<br>保存瞬间</p>
       <p class="identity-note">生活是自己的感受，<br>而不是别人的看法。</p>

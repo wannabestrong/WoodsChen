@@ -1,5 +1,5 @@
-import { state, navigate } from '../router.js?v=19';
-import { getSession } from '../supabase.js?v=19';
+import { state, navigate } from '../router.js?v=20';
+import { getSession } from '../supabase.js?v=20';
 
 const LINKS = [
   { id: 'archive', page: 'home', label: '首页', filter: 'all' },

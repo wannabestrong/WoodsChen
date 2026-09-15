@@ -11,8 +11,9 @@
    （仅供客户端使用），可直接写在页面里。
    ========================================= */
 
-import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
-import { store } from './store.js?v=19';
+/* supabase-js 以 UMD 形式自托管在 vendor/supabase-js.min.js，由 index.html 提前加载，
+   挂载为全局 window.supabase。这里不再从 CDN 动态 import，避免国内 CDN 不可达时整站白屏。 */
+import { store } from './store.js?v=20';
 
 const SUPABASE_URL = 'https://fnexvbfzbqpqwtxlwoza.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable__pLRoB-IFitrtRxahCRraQ_r81QMjA2';
@@ -21,17 +22,18 @@ const TABLE = 'articles';
 const PHOTO_TABLE = 'photo_stories';
 const MEDIA_BUCKET = 'open-media';
 
-let supabase = null;
+let client = null;
 
 function isConfigured() {
   return SUPABASE_URL.startsWith('http') && !SUPABASE_ANON_KEY.startsWith('YOUR_');
 }
 
 function getClient() {
-  if (!supabase && isConfigured()) {
-    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  /* window.supabase 缺失时返回 null，站点退化为静态内容，不影响浏览 */
+  if (!client && isConfigured() && window.supabase) {
+    client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   }
-  return supabase;
+  return client;
 }
 
 /* ---- 从云端拉取全部文章，写入本地缓存并通知页面刷新 ---- */
