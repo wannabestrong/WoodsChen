@@ -100,6 +100,7 @@ figure { margin: 0; }
   transition: color var(--ease), background var(--ease);
 }
 .nav-link:hover { color: var(--text); background: var(--surface-2); }
+.nav-link[hidden] { display: none; }
 .nav-link.active { color: var(--text); background: #11161c; }
 .nav-link.active::after {
   content: "";

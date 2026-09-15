@@ -2,12 +2,12 @@
    router.js — SPA 路由：页面状态管理 + 渲染调度
    ========================================= */
 
-import { renderHome, bindHomeEvents } from './pages/home.js?v=18';
-import { renderArticle, bindArticleEvents } from './pages/article.js?v=18';
-import { renderPhotos, bindPhotosEvents } from './pages/photos.js?v=18';
-import { renderAbout, bindAboutEvents } from './pages/about.js?v=18';
-import { renderAdmin, bindAdminEvents } from './pages/admin.js?v=18';
-import { renderNav } from './components/nav.js?v=18';
+import { renderHome, bindHomeEvents } from './pages/home.js?v=19';
+import { renderArticle, bindArticleEvents } from './pages/article.js?v=19';
+import { renderPhotos, bindPhotosEvents } from './pages/photos.js?v=19';
+import { renderAbout, bindAboutEvents } from './pages/about.js?v=19';
+import { renderAdmin, bindAdminEvents } from './pages/admin.js?v=19';
+import { renderNav } from './components/nav.js?v=19';
 
 /* ---- 状态 ---- */
 export const TOP_PAGES = ['home', 'photos']; // 首页 → 照片墙 → 首页

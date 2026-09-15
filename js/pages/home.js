@@ -1,8 +1,8 @@
-import { store } from '../store.js?v=18';
-import { navigate, renderFromLocation, state } from '../router.js?v=18';
-import { icon } from '../components/nav.js?v=18';
-import { bindIdentityNavigation, renderIdentityPanel } from '../components/identity.js?v=18';
-import { STATIC_ARTICLES, isLegacyContent } from '../content.js?v=18';
+import { store } from '../store.js?v=19';
+import { navigate, renderFromLocation, state } from '../router.js?v=19';
+import { icon } from '../components/nav.js?v=19';
+import { bindIdentityNavigation, renderIdentityPanel } from '../components/identity.js?v=19';
+import { STATIC_ARTICLES, isLegacyContent } from '../content.js?v=19';
 
 let activeSearchHandler = null;
 let cleanupSearchInteractions = () => {};

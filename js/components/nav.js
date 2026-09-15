@@ -1,11 +1,12 @@
-import { state, navigate } from '../router.js?v=18';
+import { state, navigate } from '../router.js?v=19';
+import { getSession } from '../supabase.js?v=19';
 
 const LINKS = [
   { id: 'archive', page: 'home', label: '首页', filter: 'all' },
   { id: 'notes', page: 'home', label: '文章', filter: 'essay' },
   { id: 'photos', page: 'photos', label: '照片' },
   { id: 'about', page: 'about', label: '关于' },
-  { id: 'admin', page: 'admin', label: '后台' },
+  { id: 'admin', page: 'admin', label: '后台', authOnly: true },
 ];
 
 const DISPLAY_KEY = 'fc_display_preferences';
@@ -29,7 +30,7 @@ export function renderNav() {
     <div class="nav-inner">
       <button class="nav-brand" type="button" data-page="home" aria-label="返回首页">OPEN</button>
       <div class="nav-links" aria-label="主导航">
-        ${LINKS.map(link => `<button class="nav-link${activeId === link.id ? ' active' : ''}" type="button" data-page="${link.page}" data-filter="${link.filter || ''}">${link.label}</button>`).join('')}
+        ${LINKS.map(link => `<button class="nav-link${activeId === link.id ? ' active' : ''}" type="button" data-page="${link.page}" data-filter="${link.filter || ''}"${link.authOnly ? ' hidden' : ''}>${link.label}</button>`).join('')}
       </div>
       <div class="nav-tools">
         <button class="icon-button" id="global-search" type="button" aria-label="搜索" title="搜索">${icon('search')}</button>
@@ -46,6 +47,12 @@ export function renderNav() {
   nav.querySelectorAll('[data-page]').forEach(button => {
     button.addEventListener('click', () => navigate(button.dataset.page, button.dataset.filter || null));
   });
+
+  /* 「后台」入口只对已登录的站长显示，普通访客看不到 */
+  const adminEntry = nav.querySelector('[data-page="admin"][hidden]');
+  if (adminEntry) {
+    getSession().then(session => { if (session) adminEntry.hidden = false; }).catch(() => {});
+  }
   nav.querySelector('#global-search')?.addEventListener('click', () => {
     if (state.page !== 'home' || state.filter !== 'all') {
       try { sessionStorage.setItem('fc_search_return_hash', window.location.hash); } catch {}
