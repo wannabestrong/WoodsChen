@@ -5,7 +5,7 @@
 import { renderHome, bindHomeEvents } from './pages/home.js?v=21';
 import { renderArticle, bindArticleEvents } from './pages/article.js?v=21';
 import { renderPhotos, bindPhotosEvents } from './pages/photos.js?v=21';
-import { renderAbout, bindAboutEvents } from './pages/about.js?v=21';
+import { renderAbout, bindAboutEvents } from './pages/about.js?v=22';
 import { renderAdmin, bindAdminEvents } from './pages/admin.js?v=21';
 import { renderNav } from './components/nav.js?v=21';
 
