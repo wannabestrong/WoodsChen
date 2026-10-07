@@ -19,7 +19,10 @@
 .photo-index-header p { margin: 0; color: var(--text-muted); font-size: 11px; }
 .photo-index-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .photo-index-empty { grid-column: 1 / -1; color: var(--text-muted); padding: 36px 0; }
-.photo-index-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); cursor: pointer; }
+.photo-index-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); cursor: pointer; animation: card-enter 620ms cubic-bezier(.2, .8, .2, 1) both; }
+.photo-index-card:nth-child(2) { animation-delay: 90ms; }
+.photo-index-card:nth-child(3) { animation-delay: 180ms; }
+.photo-index-card:nth-child(4) { animation-delay: 270ms; }
 .photo-index-card:hover, .photo-index-card:focus-visible { border-color: var(--line-strong); outline: none; }
 .photo-index-cover { aspect-ratio: 16 / 9; overflow: hidden; }
 .photo-index-cover img { width: 100%; height: 100%; object-fit: cover; transition: transform 220ms ease; }
@@ -42,7 +45,7 @@
 .photo-frame.portrait { aspect-ratio: 1.02 / 1; }
 .photo-frame.portrait img { object-position: center 58%; }
 .creation-note { max-width: 680px; color: var(--text-muted); line-height: 1.9; }
-.lightbox-overlay { position: fixed; z-index: 220; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(2, 3, 5, 0.94); cursor: zoom-out; }
+.lightbox-overlay { position: fixed; z-index: 220; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(5, 8, 23, 0.9); backdrop-filter: blur(16px); cursor: zoom-out; }
 .lightbox-overlay img { max-width: 94vw; max-height: 92vh; object-fit: contain; border-radius: 4px; }
 
 @media (max-width: 760px) {

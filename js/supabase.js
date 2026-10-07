@@ -13,7 +13,7 @@
 
 /* supabase-js 以 UMD 形式自托管在 vendor/supabase-js.min.js，由 index.html 提前加载，
    挂载为全局 window.supabase。这里不再从 CDN 动态 import，避免国内 CDN 不可达时整站白屏。 */
-import { store } from './store.js?v=20';
+import { store } from './store.js?v=21';
 
 const SUPABASE_URL = 'https://fnexvbfzbqpqwtxlwoza.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable__pLRoB-IFitrtRxahCRraQ_r81QMjA2';

@@ -1,6 +1,6 @@
-import { signIn, signOut, getSession, publishArticle, publishPhotoStory, uploadMedia } from '../supabase.js?v=20';
-import { renderMarkdown } from '../utils/markdown.js?v=20';
-import { icon } from '../components/nav.js?v=20';
+import { signIn, signOut, getSession, publishArticle, publishPhotoStory, uploadMedia } from '../supabase.js?v=21';
+import { renderMarkdown } from '../utils/markdown.js?v=21';
+import { icon } from '../components/nav.js?v=21';
 
 let photoImages = [];
 let articleCover = '';

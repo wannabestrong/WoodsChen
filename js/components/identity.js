@@ -1,4 +1,4 @@
-import { icon } from './nav.js?v=20';
+import { icon } from './nav.js?v=21';
 
 export function renderIdentityPanel({ activePage = 'home', activeFilter = 'all' } = {}) {
   const isHome = activePage === 'home';
