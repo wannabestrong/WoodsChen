@@ -1,12 +1,21 @@
-import { signIn, signOut, getSession, publishArticle, publishPhotoStory, uploadMedia } from '../supabase.js?v=21';
-import { renderMarkdown } from '../utils/markdown.js?v=21';
-import { icon } from '../components/nav.js?v=21';
+import { signIn, signOut, getSession, loadArticlesFromServer, publishArticle, publishPhotoStory, uploadMedia } from '../supabase.js?v=26';
+import { store } from '../store.js?v=26';
+import { STATIC_ARTICLES, isLegacyContent } from '../content.js?v=26';
+import { renderMarkdown } from '../utils/markdown.js?v=26';
+import { icon } from '../components/nav.js?v=26';
 
 let photoImages = [];
 let articleCover = '';
 let photoCover = '';
+let articleEditingId = '';
+let previewTimer = 0;
 
 export function renderAdmin() {
+  window.clearTimeout(previewTimer);
+  articleEditingId = '';
+  articleCover = '';
+  photoImages = [];
+  photoCover = '';
   return `<section class="admin-page" aria-labelledby="admin-title">
     <header class="admin-header"><div><p class="admin-kicker">Content Studio</p><h1 id="admin-title">OPEN 编辑后台</h1></div><button class="admin-quiet" id="admin-signout" type="button" hidden>${icon('log-out')}<span>退出</span></button></header>
     <div class="admin-login" id="admin-login">
@@ -14,11 +23,15 @@ export function renderAdmin() {
     </div>
     <div class="admin-workspace" id="admin-workspace" hidden>
       <div class="admin-segments" role="tablist" aria-label="内容类型"><button class="active" type="button" data-admin-mode="article">${icon('file-text')}文章</button><button type="button" data-admin-mode="photo">${icon('images')}摄影集</button></div>
+      <section class="admin-library" id="admin-article-library" aria-labelledby="admin-library-title">
+        <div class="admin-library-header"><h2 id="admin-library-title">已有文章</h2><button class="admin-quiet" id="admin-new-article" type="button">${icon('plus')}新建文章</button></div>
+        <div class="admin-article-list" id="admin-article-list"><p class="admin-empty">正在加载文章…</p></div>
+      </section>
       <form class="admin-form" id="article-form">
         <div class="admin-fields"><label>标题<input name="title" required></label><label>文章 ID<input name="id" placeholder="例如 night-walk" required></label><label>日期<input name="date" type="date" required></label><label>摘要<input name="summary"></label></div>
         <div class="admin-upload-row"><label class="admin-file">${icon('image-plus')}选择封面<input id="article-cover" type="file" accept="image/*"></label><span id="article-cover-name">尚未选择封面</span></div>
         <div class="admin-editor-grid"><div class="admin-editor"><div class="admin-editor-bar"><strong>Markdown</strong><label class="admin-file compact">${icon('paperclip')}插入图片<input id="article-inline-image" type="file" accept="image/*" multiple></label></div><textarea id="article-content" name="content" placeholder="在这里写作或粘贴 Markdown。也可以直接粘贴剪贴板中的图片。" required></textarea></div><div class="admin-preview markdown-body" id="article-preview"><p>预览会显示在这里。</p></div></div>
-        <div class="admin-submit"><select name="status" aria-label="发布状态"><option value="published">立即发布</option><option value="draft">保存草稿</option></select><button class="admin-primary" type="submit">${icon('send')}保存文章</button><p class="admin-status" id="article-status"></p></div>
+        <div class="admin-submit"><select name="status" aria-label="发布状态"><option value="published">立即发布</option><option value="draft">保存草稿</option></select><button class="admin-quiet" id="admin-cancel-edit" type="button" hidden>取消编辑</button><button class="admin-primary" type="submit">${icon('send')}<span id="article-submit-label">保存文章</span></button><p class="admin-status" id="article-status"></p></div>
       </form>
       <form class="admin-form" id="photo-form" hidden>
         <div class="admin-fields"><label>摄影集标题<input name="title" required></label><label>摄影集 ID<input name="id" placeholder="例如 summer-river" required></label><label>地点<input name="place"></label><label>日期<input name="date" type="date" required></label><label class="wide">摘要<input name="summary"></label></div>
@@ -35,8 +48,14 @@ export function bindAdminEvents() {
   const login = document.getElementById('admin-login');
   const workspace = document.getElementById('admin-workspace');
   const signout = document.getElementById('admin-signout');
-  const showWorkspace = () => { login.hidden = true; workspace.hidden = false; signout.hidden = false; };
-  getSession().then(session => { if (session) showWorkspace(); }).catch(() => {});
+  const showWorkspace = () => {
+    login.hidden = true;
+    workspace.hidden = false;
+    signout.hidden = false;
+    renderArticleLibrary();
+    void loadArticlesFromServer({ force: true }).then(renderArticleLibrary);
+  };
+  getSession().then(session => { if (session) void showWorkspace(); }).catch(() => {});
 
   document.getElementById('admin-login-form')?.addEventListener('submit', async event => {
     event.preventDefault();
@@ -50,14 +69,25 @@ export function bindAdminEvents() {
     document.querySelectorAll('[data-admin-mode]').forEach(item => item.classList.toggle('active', item === button));
     document.getElementById('article-form').hidden = button.dataset.adminMode !== 'article';
     document.getElementById('photo-form').hidden = button.dataset.adminMode !== 'photo';
+    document.getElementById('admin-article-library').hidden = button.dataset.adminMode !== 'article';
   }));
+  document.getElementById('admin-new-article')?.addEventListener('click', () => { resetArticleForm(); scrollToArticleForm(); });
+  document.getElementById('admin-cancel-edit')?.addEventListener('click', () => { resetArticleForm(); scrollToArticleForm(); });
+  document.getElementById('admin-article-list')?.addEventListener('click', event => {
+    const button = event.target.closest('[data-edit-article]');
+    if (!button) return;
+    const article = findAdminArticle(button.dataset.editArticle);
+    if (article) { fillArticleForm(article); scrollToArticleForm(); }
+  });
 
   bindSingleUpload('article-cover', 'article-cover-name', url => { articleCover = url; });
   bindSingleUpload('photo-cover', 'photo-cover-name', url => { photoCover = url; });
 
   const content = document.getElementById('article-content');
-  const preview = document.getElementById('article-preview');
-  const updatePreview = () => { preview.innerHTML = renderMarkdown(content.value) || '<p>预览会显示在这里。</p>'; };
+  const updatePreview = () => {
+    window.clearTimeout(previewTimer);
+    previewTimer = window.setTimeout(renderArticlePreview, 180);
+  };
   content?.addEventListener('input', updatePreview);
   content?.addEventListener('paste', async event => {
     const files = [...(event.clipboardData?.files || [])].filter(file => file.type.startsWith('image/'));
@@ -93,9 +123,10 @@ export function bindAdminEvents() {
     const data = new FormData(event.currentTarget);
     const status = document.getElementById('article-status');
     await run(status, '正在保存文章…', async () => {
-      const id = slug(data.get('id'));
+      const id = articleEditingId || slug(data.get('id'));
       if (!id) throw new Error('文章 ID 只能包含英文、数字和短横线');
       await publishArticle({ id, title: data.get('title'), date: data.get('date'), summary: data.get('summary'), content: data.get('content'), cover_url: articleCover, status: data.get('status') });
+      renderArticleLibrary();
       return data.get('status') === 'draft' ? '草稿已保存' : '文章已发布';
     });
   });
@@ -137,6 +168,66 @@ function renderPhotoList() {
   list.querySelectorAll('[data-move]').forEach(button => button.addEventListener('click', () => { const i = Number(button.dataset.index); const j = button.dataset.move === 'up' ? i - 1 : i + 1; if (j < 0 || j >= photoImages.length) return; [photoImages[i], photoImages[j]] = [photoImages[j], photoImages[i]]; renderPhotoList(); }));
   list.querySelectorAll('[data-remove]').forEach(button => button.addEventListener('click', () => { photoImages.splice(Number(button.dataset.index), 1); renderPhotoList(); }));
   if (window.lucide) window.lucide.createIcons({ attrs: { 'aria-hidden': 'true' } });
+}
+
+function renderArticleLibrary() {
+  const list = document.getElementById('admin-article-list');
+  if (!list) return;
+  const cloud = store.getAllArticles().filter(article => !isLegacyContent(article.id));
+  const articles = new Map(cloud.map(article => [String(article.id), article]));
+  STATIC_ARTICLES.forEach(article => { if (!articles.has(String(article.id))) articles.set(String(article.id), article); });
+  const items = [...articles.values()].sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+  if (!items.length) { list.innerHTML = '<p class="admin-empty">还没有文章。</p>'; return; }
+  list.innerHTML = items.map(article => `<button class="admin-article-item" type="button" data-edit-article="${escapeHtml(article.id)}"><span><strong>${escapeHtml(article.title || '未命名文章')}</strong><small>${escapeHtml((article.date || '').replaceAll('-', '.'))}</small></span><span class="admin-article-status ${article.status === 'draft' ? 'draft' : ''}">${article.status === 'draft' ? '草稿' : '已发布'}</span><span aria-hidden="true">编辑 →</span></button>`).join('');
+}
+
+function findAdminArticle(id) {
+  const cloudArticle = store.getAllArticles().find(article => String(article.id) === String(id));
+  return cloudArticle || STATIC_ARTICLES.find(article => String(article.id) === String(id));
+}
+
+function fillArticleForm(article) {
+  const form = document.getElementById('article-form');
+  if (!form) return;
+  articleEditingId = String(article.id);
+  form.elements.title.value = article.title || '';
+  form.elements.id.value = article.id || '';
+  form.elements.id.readOnly = true;
+  form.elements.date.value = article.date || '';
+  form.elements.summary.value = article.summary || '';
+  form.elements.content.value = article.content || '';
+  form.elements.status.value = article.status === 'draft' ? 'draft' : 'published';
+  articleCover = article.cover_url || '';
+  document.getElementById('article-cover-name').textContent = articleCover ? '已保留当前封面' : '尚未选择封面';
+  document.getElementById('article-submit-label').textContent = '更新文章';
+  document.getElementById('admin-cancel-edit').hidden = false;
+  document.getElementById('article-status').textContent = '';
+  renderArticlePreview();
+}
+
+function resetArticleForm() {
+  const form = document.getElementById('article-form');
+  if (!form) return;
+  articleEditingId = '';
+  articleCover = '';
+  form.reset();
+  form.elements.id.readOnly = false;
+  document.getElementById('article-cover-name').textContent = '尚未选择封面';
+  document.getElementById('article-submit-label').textContent = '保存文章';
+  document.getElementById('admin-cancel-edit').hidden = true;
+  document.getElementById('article-status').textContent = '';
+  renderArticlePreview();
+}
+
+function renderArticlePreview() {
+  const content = document.getElementById('article-content');
+  const preview = document.getElementById('article-preview');
+  if (!content || !preview) return;
+  preview.innerHTML = renderMarkdown(content.value) || '<p>预览会显示在这里。</p>';
+}
+
+function scrollToArticleForm() {
+  document.getElementById('article-form')?.scrollIntoView({ behavior: 'auto', block: 'start' });
 }
 
 async function run(node, pending, task) {

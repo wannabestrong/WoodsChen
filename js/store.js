@@ -15,7 +15,7 @@ const LEGACY_IDS = new Set([
   'dusk-tram', 'unfinished-thoughts', 'seaside-evening', 'window-light',
 ]);
 
-function read(key, fallback) {
+function read(key, fallback, includeDrafts = false) {
   try {
     const raw = localStorage.getItem(key);
     const value = raw ? JSON.parse(raw) : fallback;
@@ -24,7 +24,7 @@ function read(key, fallback) {
       const cleaned = value.filter(item => !LEGACY_IDS.has(String(item?.id)));
       if (raw && cleaned.length !== value.length) localStorage.setItem(key, JSON.stringify(cleaned));
       /* 草稿保留在缓存中（后台需要读），但不对站点渲染 */
-      return cleaned.filter(item => item?.status !== 'draft');
+      return includeDrafts ? cleaned : cleaned.filter(item => item?.status !== 'draft');
     }
     return value;
   } catch {
@@ -42,6 +42,7 @@ function write(key, value) {
 
 export const store = {
   getArticles()    { return read(KEYS.articles, []); },
+  getAllArticles() { return read(KEYS.articles, [], true); },
   setArticles(v)   { write(KEYS.articles, v); },
   getPhotoStories(){ return read(KEYS.photoStories, []); },
   setPhotoStories(v){ write(KEYS.photoStories, v); },

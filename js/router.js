@@ -2,12 +2,12 @@
    router.js — SPA 路由：页面状态管理 + 渲染调度
    ========================================= */
 
-import { renderHome, bindHomeEvents } from './pages/home.js?v=21';
-import { renderArticle, bindArticleEvents } from './pages/article.js?v=21';
-import { renderPhotos, bindPhotosEvents } from './pages/photos.js?v=21';
-import { renderAbout, bindAboutEvents } from './pages/about.js?v=22';
-import { renderAdmin, bindAdminEvents } from './pages/admin.js?v=21';
-import { renderNav } from './components/nav.js?v=21';
+import { renderHome, bindHomeEvents } from './pages/home.js?v=26';
+import { renderArticle, bindArticleEvents } from './pages/article.js?v=26';
+import { renderPhotos, bindPhotosEvents } from './pages/photos.js?v=26';
+import { renderAbout, bindAboutEvents } from './pages/about.js?v=26';
+import { renderAdmin, bindAdminEvents } from './pages/admin.js?v=26';
+import { renderNav } from './components/nav.js?v=26';
 
 /* ---- 状态 ---- */
 export const TOP_PAGES = ['home', 'photos']; // 首页 → 照片墙 → 首页
@@ -128,7 +128,7 @@ export function render() {
   }
 
   /* 滚动到顶部 */
-  window.scrollTo({ top: 0, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  window.scrollTo({ top: 0, behavior: 'auto' });
 }
 
 /* ---- 底部箭头页面切换 ---- */

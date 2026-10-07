@@ -1,5 +1,5 @@
-import { state, navigate } from '../router.js?v=21';
-import { getSession } from '../supabase.js?v=21';
+import { state, navigate } from '../router.js?v=26';
+import { getSession } from '../supabase.js?v=26';
 
 const LINKS = [
   { id: 'archive', page: 'home', label: '首页', filter: 'all' },
@@ -37,6 +37,7 @@ export function renderNav() {
         <button class="icon-button" id="display-settings" type="button" aria-label="显示设置" title="显示设置" aria-expanded="false" aria-controls="display-settings-panel">${icon('settings')}</button>
         <div class="display-settings-panel" id="display-settings-panel" hidden>
           <div class="settings-heading"><strong>显示设置</strong><button class="settings-close" type="button" aria-label="关闭显示设置">${icon('x')}</button></div>
+          <label><span>黑夜模式</span><input type="checkbox" name="darkMode" ${preferences.darkMode ? 'checked' : ''}></label>
           <label><span>高对比度</span><input type="checkbox" name="contrast" ${preferences.contrast ? 'checked' : ''}></label>
           <label><span>大号正文</span><input type="checkbox" name="largeText" ${preferences.largeText ? 'checked' : ''}></label>
           <label><span>减少动效</span><input type="checkbox" name="reducedMotion" ${preferences.reducedMotion ? 'checked' : ''}></label>
@@ -74,6 +75,7 @@ export function renderNav() {
   settingsPanel?.querySelector('.settings-close')?.addEventListener('click', closeSettings);
   settingsPanel?.querySelectorAll('input').forEach(input => input.addEventListener('change', () => {
     const next = {
+      darkMode: settingsPanel.querySelector('[name="darkMode"]').checked,
       contrast: settingsPanel.querySelector('[name="contrast"]').checked,
       largeText: settingsPanel.querySelector('[name="largeText"]').checked,
       reducedMotion: settingsPanel.querySelector('[name="reducedMotion"]').checked,
@@ -94,12 +96,14 @@ export function renderNav() {
 }
 
 function readDisplayPreferences() {
-  try { return { contrast: false, largeText: false, reducedMotion: false, ...JSON.parse(localStorage.getItem(DISPLAY_KEY) || '{}') }; }
-  catch { return { contrast: false, largeText: false, reducedMotion: false }; }
+  try { return { darkMode: true, contrast: false, largeText: false, reducedMotion: false, ...JSON.parse(localStorage.getItem(DISPLAY_KEY) || '{}') }; }
+  catch { return { darkMode: true, contrast: false, largeText: false, reducedMotion: false }; }
 }
 
 function applyDisplayPreferences(preferences) {
+  document.documentElement.classList.toggle('light-theme', !preferences.darkMode);
   document.documentElement.classList.toggle('high-contrast', preferences.contrast);
   document.documentElement.classList.toggle('large-text', preferences.largeText);
   document.documentElement.classList.toggle('reduce-motion', preferences.reducedMotion);
+  document.querySelector('meta[name="theme-color"]')?.setAttribute('content', preferences.darkMode ? '#0b1230' : '#d8e0f3');
 }

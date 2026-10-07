@@ -13,7 +13,7 @@
 
 /* supabase-js 以 UMD 形式自托管在 vendor/supabase-js.min.js，由 index.html 提前加载，
    挂载为全局 window.supabase。这里不再从 CDN 动态 import，避免国内 CDN 不可达时整站白屏。 */
-import { store } from './store.js?v=21';
+import { store } from './store.js?v=26';
 
 const SUPABASE_URL = 'https://fnexvbfzbqpqwtxlwoza.supabase.co';
 const SUPABASE_ANON_KEY = 'sb_publishable__pLRoB-IFitrtRxahCRraQ_r81QMjA2';
@@ -23,6 +23,10 @@ const PHOTO_TABLE = 'photo_stories';
 const MEDIA_BUCKET = 'open-media';
 
 let client = null;
+let articlesRequest = null;
+let photoStoriesRequest = null;
+let articlesLoadedAt = 0;
+let photoStoriesLoadedAt = 0;
 
 function isConfigured() {
   return SUPABASE_URL.startsWith('http') && !SUPABASE_ANON_KEY.startsWith('YOUR_');
@@ -37,36 +41,48 @@ function getClient() {
 }
 
 /* ---- 从云端拉取全部文章，写入本地缓存并通知页面刷新 ---- */
-export async function loadArticlesFromServer() {
+export async function loadArticlesFromServer({ force = false } = {}) {
   const client = getClient();
   if (!client) return;
+  if (!force && articlesLoadedAt && Date.now() - articlesLoadedAt < 5000) return;
+  if (articlesRequest) return articlesRequest;
 
-  try {
-    const { data, error } = await client
-      .from(TABLE)
-      .select('*')
-      .order('date', { ascending: false });
+  articlesRequest = (async () => {
+    try {
+      const { data, error } = await client
+        .from(TABLE)
+        .select('*')
+        .order('date', { ascending: false });
 
-    if (error) throw error;
+      if (error) throw error;
 
-    store.setArticles(data || []);
-    window.dispatchEvent(new CustomEvent('fc:articles-updated'));
-  } catch (err) {
-    console.error('加载云端文章失败（使用本地缓存）:', err.message || err);
-  }
+      store.setArticles(data || []);
+      articlesLoadedAt = Date.now();
+      window.dispatchEvent(new CustomEvent('fc:articles-updated'));
+    } catch (err) {
+      console.error('加载云端文章失败（使用本地缓存）:', err.message || err);
+    }
+  })();
+  try { await articlesRequest; } finally { articlesRequest = null; }
 }
 
-export async function loadPhotoStoriesFromServer() {
+export async function loadPhotoStoriesFromServer({ force = false } = {}) {
   const client = getClient();
   if (!client) return;
-  try {
-    const { data, error } = await client.from(PHOTO_TABLE).select('*').order('date', { ascending: false });
-    if (error) throw error;
-    store.setPhotoStories(data || []);
-    window.dispatchEvent(new CustomEvent('fc:articles-updated'));
-  } catch (err) {
-    console.info('摄影集表尚未启用或加载失败（使用静态内容）:', err.message || err);
-  }
+  if (!force && photoStoriesLoadedAt && Date.now() - photoStoriesLoadedAt < 5000) return;
+  if (photoStoriesRequest) return photoStoriesRequest;
+  photoStoriesRequest = (async () => {
+    try {
+      const { data, error } = await client.from(PHOTO_TABLE).select('*').order('date', { ascending: false });
+      if (error) throw error;
+      store.setPhotoStories(data || []);
+      photoStoriesLoadedAt = Date.now();
+      window.dispatchEvent(new CustomEvent('fc:articles-updated'));
+    } catch (err) {
+      console.info('摄影集表尚未启用或加载失败（使用静态内容）:', err.message || err);
+    }
+  })();
+  try { await photoStoriesRequest; } finally { photoStoriesRequest = null; }
 }
 
 /* ---- 登录（发布前必须执行一次，会话会保存在浏览器里） ---- */
@@ -128,7 +144,7 @@ export async function publishArticle(article) {
   const { error } = await client.from(TABLE).upsert(row, { onConflict: 'id' });
   if (error) throw error;
 
-  await loadArticlesFromServer();
+  await loadArticlesFromServer({ force: true });
 }
 
 export async function publishPhotoStory(story) {
@@ -149,7 +165,7 @@ export async function publishPhotoStory(story) {
   };
   const { error } = await client.from(PHOTO_TABLE).upsert(row, { onConflict: 'id' });
   if (error) throw error;
-  await loadPhotoStoriesFromServer();
+  await loadPhotoStoriesFromServer({ force: true });
 }
 
 export async function uploadMedia(file, folder = 'uploads') {

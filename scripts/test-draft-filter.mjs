@@ -24,6 +24,11 @@ assert.deepStrictEqual(
 );
 
 const cached = JSON.parse(mem.get('fc_articles'));
+assert.deepStrictEqual(
+  store.getAllArticles().map(a => a.id),
+  ['published-one', 'draft-one'],
+  '后台应能读取草稿，但不能读到已清理的遗留内容'
+);
 assert.ok(
   cached.some(a => a.id === 'draft-one'),
   '草稿必须保留在缓存中，否则后台读不到'
