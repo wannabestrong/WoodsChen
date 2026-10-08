@@ -46,16 +46,16 @@ html.light-theme {
   --surface: #e7edf9;
   --surface-2: #dce6f8;
   --surface-hover: #cfdcf3;
-  --text: #202b49;
-  --text-soft: #4b5b7d;
-  --text-muted: #6e7d9f;
+  --text: #17233d;
+  --text-soft: #304361;
+  --text-muted: #526887;
   --line: rgba(70, 88, 135, 0.22);
   --line-strong: rgba(70, 88, 135, 0.38);
   --blue: #586db8;
   --blue-soft: rgba(88, 109, 184, 0.16);
   --amber: #a6782f;
   --danger: #b44b55;
-  --brand-text: #202b49;
+  --brand-text: #17233d;
   --nav-bg: #cbd7ef;
   --arrow-bg: #c5d2ec;
   --input-bg: #d8e3f6;
@@ -67,9 +67,9 @@ html.light-theme {
   --media-start: #9eaddd;
   --media-mid: #6175b8;
   --media-end: #72a5bf;
-  --card-overlay: rgba(19, 29, 63, 0.82);
-  --card-text: #f0f3ff;
-  --card-meta: #d2dcf5;
+  --card-overlay: rgba(216, 224, 243, 0.36);
+  --card-text: #17233d;
+  --card-meta: #304361;
   --wave-1: rgba(103, 128, 207, 0.18);
   --wave-2: rgba(145, 119, 204, 0.13);
   --wave-3: rgba(78, 164, 195, 0.16);
@@ -77,6 +77,9 @@ html.light-theme {
   --wave-5: rgba(71, 150, 191, 0.13);
   --wave-6: rgba(151, 105, 194, 0.11);
 }
+
+html.light-theme .markdown-body { color: var(--text-soft); }
+html.light-theme .admin-primary { color: #ffffff; }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: auto; }
